@@ -1,0 +1,1415 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F5F7FA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1318" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231F3D9E'/%3E%3Ctext x='16' y='21' font-family='monospace' font-size='12' font-weight='700' fill='white' text-anchor='middle'%3ESQL%3C/text%3E%3C/svg%3E">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>AP2 SQL-Training</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=JetBrains+Mono:wght@400;600&family=Schibsted+Grotesk:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: Karopapier als Grund, links das Schema als Spickzettel (Desktop sticky, Handy als Overlay), rechts die Aufgabenblätter. */
+:root {
+  --paper: #F5F7FA; --grid: #E3E9F0; --sheet: #FFFFFF; --ink: #18212C; --muted: #5A6574; --rule: #D5DCE5;
+  --blue: #1F3D9E; --blue-soft: #EAEFFB; --red: #B3362B; --red-soft: #FBEDEB;
+  --ok: #2B7A4B; --part: #9C6200; --bad: #B3362B;
+  --code-bg: #F1F4F8; --kw: #1F3D9E; --str: #2B7A4B; --num: #9C5400; --cmt: #7B8696; --fn: #7A3BA8;
+  --shadow: 0 1px 0 rgba(24,33,44,.04), 0 6px 18px -10px rgba(24,33,44,.18);
+  --f-display: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --f-hand: "Caveat", "Segoe Print", "Comic Sans MS", cursive;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #0E1318; --grid: #17202A; --sheet: #141B23; --ink: #DDE4EC; --muted: #8E9AA9; --rule: #26313D;
+  --blue: #97ADFF; --blue-soft: #1A2340; --red: #FF8B7C; --red-soft: #351E1B;
+  --ok: #6FD39A; --part: #F0B458; --bad: #FF8B7C;
+  --code-bg: #0B1015; --kw: #97ADFF; --str: #7FD3A0; --num: #F0B458; --cmt: #6E7B8A; --fn: #D6A4FF;
+  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 8px 22px -12px rgba(0,0,0,.6);
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --paper: #0E1318; --grid: #17202A; --sheet: #141B23; --ink: #DDE4EC; --muted: #8E9AA9; --rule: #26313D;
+  --blue: #97ADFF; --blue-soft: #1A2340; --red: #FF8B7C; --red-soft: #351E1B;
+  --ok: #6FD39A; --part: #F0B458; --bad: #FF8B7C;
+  --code-bg: #0B1015; --kw: #97ADFF; --str: #7FD3A0; --num: #F0B458; --cmt: #6E7B8A; --fn: #D6A4FF;
+  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 8px 22px -12px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+.solution > *, .task-head > div { min-width: 0; }
+body {
+  background-color: var(--paper);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 20px 20px;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 96px; }
+@media (min-width: 700px) { .wrap { padding-inline: 28px; } }
+code, pre, .mono { font-family: var(--f-mono); }
+p code, li code { font-size: .86em; background: var(--code-bg); border: 1px solid var(--rule); padding: .05em .35em; border-radius: 3px; overflow-wrap: anywhere; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* Kopf */
+.top { display: grid; gap: 18px; margin-bottom: 22px; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(30px, 6vw, 46px); line-height: 1.05; margin: 4px 0 8px; letter-spacing: -.02em; text-wrap: balance; }
+h1 .sql { color: var(--blue); }
+.lede { margin: 0; max-width: 62ch; color: var(--muted); }
+.lede strong { color: var(--ink); font-weight: 600; }
+
+.progress { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; display: grid; gap: 10px; box-shadow: var(--shadow); }
+.progress-line { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+.progress-count { font-weight: 700; font-variant-numeric: tabular-nums; }
+.progress-count span { color: var(--muted); font-weight: 400; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: 0; }
+.bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--grid); }
+.bar > div { height: 100%; transition: width .3s ease; }
+.c-ok { background: var(--ok); } .c-part { background: var(--part); } .c-bad { background: var(--bad); }
+.reset { justify-self: start; background: none; border: 0; padding: 0; font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.reset.armed { color: var(--red); font-weight: 600; }
+
+/* Filter */
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-bottom: 18px; }
+.seg { display: inline-flex; flex-wrap: wrap; background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: none; padding: 6px 11px; border-radius: 4px; cursor: pointer; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--blue); color: var(--sheet); font-weight: 600; }
+.seg-label { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
+.filter-group { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+
+/* Raster */
+.layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (min-width: 1040px) { .layout { grid-template-columns: 350px minmax(0, 1fr); } }
+
+/* Schema */
+.schema { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; box-shadow: var(--shadow); }
+.schema-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px 10px; border-bottom: 1px solid var(--rule); }
+.schema-head h2 { margin: 0; font-size: 15px; font-weight: 700; }
+.schema-head p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+.schema-body { padding: 8px 16px 16px; display: grid; gap: 14px; }
+.tbl h3 { margin: 6px 0 4px; font-family: var(--f-mono); font-size: 14px; font-weight: 600; color: var(--blue); }
+.tbl ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.tbl li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; padding: 4px 0; border-bottom: 1px dashed var(--rule); font-size: 13px; }
+.col { font-family: var(--f-mono); min-width: 0; overflow-wrap: anywhere; }
+.col.pk { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.type { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); }
+.note { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+.fk { font-size: 11px; font-family: var(--f-mono); color: var(--red); margin-left: 4px; }
+.keys { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.keys u { color: var(--ink); text-underline-offset: 3px; font-family: var(--f-mono); }
+.rel h3 { font-family: var(--f-body); color: var(--ink); font-size: 13px; }
+.rel ul li { grid-template-columns: 1fr; font-size: 12.5px; }
+.close-schema { display: none; border: 1px solid var(--rule); background: var(--paper); border-radius: 5px; padding: 6px 10px; cursor: pointer; font-size: 14px; }
+
+@media (min-width: 1040px) {
+  .schema { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); max-height: calc(100vh - 32px); overflow: auto; }
+}
+@media (max-width: 1039px) {
+  .schema { display: none; }
+  body.schema-open .schema { display: block; position: fixed; inset: 0; z-index: 30; border-radius: 0; border: 0; overflow: auto;
+    padding-top: env(safe-area-inset-top, 0px); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); }
+  body.schema-open .schema-head { position: sticky; top: 0; background: var(--sheet); z-index: 1; }
+  body.schema-open { overflow: hidden; }
+  .close-schema { display: inline-block; }
+}
+.schema-fab { display: none; }
+@media (max-width: 1039px) {
+  .schema-fab { display: inline-flex; align-items: center; gap: 8px; position: fixed; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); z-index: 20;
+    background: var(--blue); color: var(--sheet); border: 0; border-radius: 999px; padding: 11px 18px; font-weight: 700; font-size: 15px; box-shadow: 0 8px 22px -8px rgba(0,0,0,.45); cursor: pointer; }
+  body.schema-open .schema-fab { display: none; }
+}
+
+/* Aufgaben */
+.tasks { display: grid; gap: 18px; min-width: 0; }
+.group-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+.group-head:first-child { margin-top: 0; }
+.group-head h2 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
+.group-head p { margin: 0; color: var(--muted); font-size: 14px; }
+
+.task { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; box-shadow: var(--shadow); padding: 18px 18px 16px; min-width: 0; position: relative; }
+@media (min-width: 700px) { .task { padding: 22px 26px 20px; } }
+.task-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; align-items: start; }
+.num { font-family: var(--f-mono); font-weight: 600; font-size: 15px; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 4px; min-width: 38px; height: 32px; display: grid; place-items: center; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.task h3 { margin: 0; font-size: 19px; line-height: 1.3; font-weight: 700; text-wrap: balance; padding-right: 92px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; margin-top: 6px; }
+.lvl { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+.lvl .sq { display: inline-flex; gap: 2px; }
+.lvl .sq i { width: 8px; height: 8px; border: 1.5px solid var(--blue); border-radius: 1px; }
+.lvl .sq i.on { background: var(--blue); }
+.tag { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); border: 1px solid var(--rule); border-radius: 3px; padding: 1px 6px; background: var(--paper); }
+.stamp { position: absolute; top: 14px; right: 16px; font-family: var(--f-hand); font-size: 22px; font-weight: 600; transform: rotate(-5deg); line-height: 1; }
+.stamp.ok { color: var(--ok); } .stamp.part { color: var(--part); } .stamp.bad { color: var(--bad); }
+
+.prompt { margin-top: 14px; max-width: 68ch; }
+.prompt p { margin: 0 0 10px; }
+.prompt p:last-child { margin-bottom: 0; }
+.prompt ul { margin: 6px 0 0; padding-left: 20px; }
+.prompt li { margin: 2px 0; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.btn { border: 1.5px solid var(--blue); background: transparent; color: var(--blue); border-radius: 5px; padding: 8px 14px; font-weight: 600; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.btn:hover { background: var(--blue-soft); }
+.btn[aria-expanded="true"] { background: var(--blue); color: var(--sheet); }
+.btn.sol { border-color: var(--ink); color: var(--ink); }
+.btn.sol:hover { background: var(--paper); }
+.btn.sol[aria-expanded="true"] { background: var(--ink); color: var(--sheet); }
+.chev { width: 10px; height: 10px; transition: transform .2s ease; }
+[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+.hint { margin-top: 14px; background: var(--blue-soft); border-radius: 5px; padding: 12px 16px 14px; max-width: 68ch; }
+.hand { font-family: var(--f-hand); font-weight: 600; font-size: 22px; line-height: 1; display: block; margin-bottom: 4px; }
+.hint .hand { color: var(--blue); }
+.hint p { margin: 0; }
+
+.solution { margin-top: 16px; border-top: 1px solid var(--rule); padding-top: 16px; display: grid; gap: 14px; min-width: 0; }
+.sol-label { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0 0 6px; }
+pre.code { margin: 0; background: var(--code-bg); border: 1px solid var(--rule); border-radius: 5px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.6; tab-size: 4; }
+.k { color: var(--kw); font-weight: 600; } .s { color: var(--str); } .n { color: var(--num); } .c { color: var(--cmt); font-style: italic; } .f { color: var(--fn); }
+.explain p { margin: 0; max-width: 68ch; }
+details.alt { border: 1px solid var(--rule); border-radius: 5px; background: var(--paper); }
+details.alt summary { cursor: pointer; padding: 9px 14px; font-weight: 600; font-size: 14px; }
+details.alt pre.code { border: 0; border-top: 1px solid var(--rule); border-radius: 0 0 5px 5px; }
+.pitfall { background: var(--red-soft); border-radius: 5px; padding: 12px 16px 14px; max-width: 68ch; }
+.pitfall .hand { color: var(--red); }
+.pitfall p { margin: 0; }
+
+.rate { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding-top: 4px; }
+.rate-q { font-size: 14px; color: var(--muted); margin-right: 4px; }
+.rate button { border: 1.5px solid var(--rule); background: var(--sheet); border-radius: 999px; padding: 6px 14px; font-size: 14px; cursor: pointer; font-weight: 500; }
+.rate button:hover { border-color: var(--muted); }
+.rate button[data-r="ok"][aria-pressed="true"] { border-color: var(--ok); background: var(--ok); color: var(--sheet); }
+.rate button[data-r="part"][aria-pressed="true"] { border-color: var(--part); background: var(--part); color: var(--sheet); }
+.rate button[data-r="bad"][aria-pressed="true"] { border-color: var(--bad); background: var(--bad); color: var(--sheet); }
+
+.empty { background: var(--sheet); border: 1px dashed var(--rule); border-radius: 6px; padding: 28px 20px; text-align: center; color: var(--muted); }
+
+.foot { margin-top: 28px; font-size: 13px; color: var(--muted); max-width: 70ch; }
+
+
+/* Tabellen in Aufgabentext und Musterlösung */
+.tw { overflow-x: auto; margin: 4px 0 12px; max-width: 100%; }
+.tw table { border-collapse: collapse; font-size: 14px; min-width: 100%; }
+.tw th, .tw td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.tw table { width: 100%; }
+.tw th, .tw td { overflow-wrap: anywhere; }
+@media (max-width: 520px) { .tw th, .tw td { padding: 6px 6px; font-size: 13px; } }
+.tw code { font-size: .86em; background: var(--code-bg); border: 1px solid var(--rule); padding: .05em .3em; border-radius: 3px; }
+.tw th { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--paper); }
+.answer { max-width: 72ch; display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
+.answer p { margin: 0; }
+.answer + pre.code { margin-top: 12px; }
+
+/* Eingabe & Prüfung */
+.bench, .feedback, .solution, details.cmp > div, .fb-msgs { grid-template-columns: minmax(0, 1fr); }
+.bench > *, .feedback > *, details.cmp > div > * { min-width: 0; }
+.btn.try { border-style: dashed; }
+.btn.try[aria-expanded="true"] { border-style: solid; }
+.bench { margin-top: 16px; border-top: 1px solid var(--rule); padding-top: 16px; display: grid; gap: 12px; min-width: 0; }
+.bench-intro { margin: 0; font-size: 14px; color: var(--muted); max-width: 68ch; }
+.sql-in { width: 100%; min-height: 150px; resize: vertical; font-family: var(--f-mono); font-size: 16px; line-height: 1.55; color: var(--ink);
+  background: var(--code-bg); border: 1.5px solid var(--rule); border-radius: 5px; padding: 12px 14px; tab-size: 4; }
+@media (min-width: 700px) { .sql-in { font-size: 14px; } }
+.sql-in:focus { outline: none; border-color: var(--blue); }
+.sql-in::placeholder { color: var(--cmt); }
+.palette { border: 1px solid var(--rule); border-radius: 5px; background: var(--paper); }
+.ptabs { display: flex; gap: 2px; overflow-x: auto; border-bottom: 1px solid var(--rule); padding: 0 6px; scrollbar-width: none; }
+.ptab { border: 0; background: none; padding: 9px 10px 8px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.ptab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--blue); font-weight: 700; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; }
+.chips + .chips { border-top: 1px dashed var(--rule); }
+.chip { font-family: var(--f-mono); font-size: 13px; line-height: 1.2; border: 1px solid var(--rule); background: var(--sheet); color: var(--kw); border-radius: 4px; padding: 7px 9px; cursor: pointer; touch-action: manipulation; }
+.chip:hover { border-color: var(--blue); }
+.chip:active { transform: translateY(1px); }
+.chip.fn { color: var(--fn); }
+.chip.op { color: var(--ink); min-width: 34px; }
+.chip.tbl { color: var(--blue); font-weight: 600; }
+.chip.tbl[aria-pressed="true"] { background: var(--blue); color: var(--sheet); border-color: var(--blue); }
+.chip.colname { color: var(--ink); }
+.chip.colname.pk { text-decoration: underline; text-underline-offset: 3px; }
+.chips-label { width: 100%; font-size: 12px; color: var(--muted); font-family: var(--f-body); }
+.bench-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn.run { background: var(--blue); color: var(--sheet); }
+.btn.run:hover { background: var(--blue); filter: brightness(1.08); }
+.btn.run[disabled] { opacity: .6; cursor: progress; }
+.ghost { border: 1px solid var(--rule); background: var(--sheet); border-radius: 5px; padding: 8px 12px; font-size: 14px; cursor: pointer; color: var(--ink); }
+.ghost:hover { border-color: var(--muted); }
+.kbd { font-size: 12px; color: var(--muted); }
+@media (hover: none) { .kbd { display: none; } }
+
+.feedback:empty { display: none; }
+.feedback { border: 1px solid var(--rule); border-radius: 5px; background: var(--sheet); padding: 12px 16px 14px; display: grid; gap: 10px; min-width: 0; }
+.fb-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.fb-mark { font-family: var(--f-hand); font-weight: 600; font-size: 26px; line-height: 1; transform: rotate(-3deg); }
+.fb-ok .fb-mark { color: var(--ok); } .fb-part .fb-mark { color: var(--part); } .fb-bad .fb-mark, .fb-error .fb-mark { color: var(--bad); } .fb-wait .fb-mark { color: var(--muted); }
+.fb-msgs { display: grid; gap: 6px; }
+.fb-msgs p { margin: 0; max-width: 70ch; }
+.fb-warn { background: var(--red-soft); border-radius: 4px; padding: 8px 12px; font-size: 14px; }
+.fb-warn strong { color: var(--red); }
+.fb-note { font-size: 14px; color: var(--muted); }
+.fb-raw { font-family: var(--f-mono); font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.fb-mark-btn { justify-self: start; }
+.rt { overflow-x: auto; border: 1px solid var(--rule); border-radius: 4px; max-width: 100%; }
+.rt table { border-collapse: collapse; font-family: var(--f-mono); font-size: 12.5px; font-variant-numeric: tabular-nums; min-width: 100%; }
+.rt th, .rt td { padding: 5px 10px; border-bottom: 1px solid var(--rule); text-align: left; white-space: nowrap; }
+.rt th { background: var(--code-bg); font-weight: 600; color: var(--muted); }
+.rt tr:last-child td { border-bottom: 0; }
+.rt .null { color: var(--cmt); font-style: italic; }
+.rt-cap { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0 0 6px; }
+.rt-more { font-size: 12px; color: var(--muted); margin-top: 4px; }
+details.cmp { border: 1px solid var(--rule); border-radius: 5px; }
+details.cmp summary { cursor: pointer; padding: 8px 12px; font-size: 14px; font-weight: 600; }
+details.cmp > div { padding: 0 12px 12px; display: grid; gap: 12px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Fachinformatiker Anwendungsentwicklung · AP2</div>
+      <h1>AP2 <span class="sql">SQL</span>-Training</h1>
+      <p class="lede">31 Aufgaben rund um den Fahrradverleih <strong>Elbrad</strong>: Auffrischung zu Tabellen, Datentypen und Transaktionen, danach Abfragen von mittel bis Prüfungsniveau. Löse jede Aufgabe auf Papier und deck dann Hinweis oder Lösung auf. Wenn du magst, tippst du deine Lösung ein und lässt sie gegen Testdaten prüfen.</p>
+    </div>
+    <div class="progress" aria-live="polite">
+      <div class="progress-line">
+        <div class="progress-count" id="pcount">0 <span>von 24 bearbeitet</span></div>
+        <div class="legend" id="plegend"></div>
+      </div>
+      <div class="bar" id="pbar"><div class="c-ok"></div><div class="c-part"></div><div class="c-bad"></div></div>
+      <button class="reset" id="reset" type="button">Fortschritt zurücksetzen</button>
+    </div>
+  </header>
+
+  <div class="toolbar" role="toolbar" aria-label="Filter">
+    <div class="filter-group"><span class="seg-label">Niveau</span><div class="seg" id="f-level"></div></div>
+    <div class="filter-group"><span class="seg-label">Status</span><div class="seg" id="f-status"></div></div>
+  </div>
+
+  <div class="layout">
+    <aside class="schema" id="schema" aria-label="Datenbankschema">
+      <div class="schema-head">
+        <div>
+          <h2>Datenbankschema</h2>
+          <p>Fahrradverleih Elbrad · gilt für alle Aufgaben</p>
+        </div>
+        <button class="close-schema" id="close-schema" type="button">Schließen</button>
+      </div>
+      <div class="schema-body" id="schema-body"></div>
+    </aside>
+    <main class="tasks" id="tasks"></main>
+  </div>
+
+  <p class="foot">Die Musterlösungen sind in Standard-SQL geschrieben und laufen so auch in MySQL 8. Die Prüfung führt deine Eingabe direkt hier im Browser gegen zwei Testdatensätze aus, einer davon mit Sonderfällen wie NULL-Werten und Gleichständen, und vergleicht das Ergebnis mit dem der Musterlösung. Spaltennamen, Spaltenreihenfolge, Groß- und Kleinschreibung, Semikolons und kleine Rundungsunterschiede spielen dabei keine Rolle. Geprüft wird mit SQLite; gängige MySQL-Schreibweisen wie YEAR(), CURDATE() oder AUTO_INCREMENT werden verstanden.</p>
+</div>
+
+<button class="schema-fab" id="open-schema" type="button" aria-controls="schema">
+  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2" width="13" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1.5 6h13M6 6v8" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+  Schema
+</button>
+
+<script id="data" type="application/json">{"tasks": [{"id": 1, "no": "1", "level": "mittel", "title": "E-Bikes im mittleren Preissegment", "topics": ["WHERE", "BETWEEN", "ORDER BY"], "task": "<p>Gib <code>FahrradID<\/code>, <code>Modell<\/code> und <code>Stundenpreis<\/code> aller E-Bikes aus, deren Stundenpreis zwischen 4,00 € und 6,00 € (jeweils einschließlich) liegt und die vor dem 01.01.2023 angeschafft wurden.<\/p><p>Sortiere nach Stundenpreis absteigend.<\/p>", "hint": "<p>Drei Bedingungen in der WHERE-Klausel, alle mit AND verknüpft. Für den Preisbereich gibt es einen eigenen Operator, der beide Grenzen einschließt. Datumswerte schreibst du als Literal im Format 'JJJJ-MM-TT'.<\/p>", "explain": "<p><code>BETWEEN a AND b<\/code> schließt beide Grenzen ein, entspricht also <code>&gt;= a AND &lt;= b<\/code>. „Vor dem 01.01.2023“ heißt <code>&lt; '2023-01-01'<\/code>; mit <code>&lt;=<\/code> gehörte der Neujahrstag noch dazu.<\/p>", "pitfall": "<p>Textwerte gehören in einfache Hochkommas ('E-Bike'). Ohne <code>DESC<\/code> sortiert <code>ORDER BY<\/code> aufsteigend.<\/p>", "solution": "SELECT FahrradID, Modell, Stundenpreis\nFROM Fahrrad\nWHERE Typ = 'E-Bike'\n  AND Stundenpreis BETWEEN 4.00 AND 6.00\n  AND Anschaffungsdatum < '2023-01-01'\nORDER BY Stundenpreis DESC;", "check": {"kind": "select", "sort": [[2, "desc"]], "sortText": "Stundenpreis absteigend", "edge": "Der zweite Datensatz enthält ein E-Bike für genau 6,00 €, angeschafft am 31.12.2022, und eines, das am 01.01.2023 angeschafft wurde. Prüfe die Grenzen."}}, {"id": 2, "no": "2", "level": "mittel", "title": "Fahrradtypen im Überblick", "topics": ["GROUP BY", "HAVING", "AVG"], "task": "<p>Ermittle für jeden Fahrradtyp die Anzahl der Fahrräder und den durchschnittlichen Stundenpreis, gerundet auf 2 Nachkommastellen.<\/p><p>Es sollen nur Typen erscheinen, von denen es mindestens 3 Fahrräder gibt. Sortiere nach Anzahl absteigend.<\/p>", "hint": "<p>Gruppiere nach dem Typ. Die Bedingung „mindestens 3“ bezieht sich auf das Ergebnis einer Aggregatfunktion. Dafür reicht WHERE nicht aus.<\/p>", "explain": "<p><code>WHERE<\/code> filtert einzelne Zeilen vor der Gruppierung, <code>HAVING<\/code> filtert ganze Gruppen danach. In <code>ORDER BY<\/code> darfst du den Alias <code>Anzahl<\/code> benutzen, weil ORDER BY nach SELECT ausgewertet wird. In HAVING schreibst du nach Standard-SQL die Aggregatfunktion aus.<\/p>", "pitfall": "<p><code>WHERE COUNT(*) &gt;= 3<\/code> ist ein Syntaxfehler: Aggregatfunktionen sind in WHERE nicht erlaubt.<\/p>", "solution": "SELECT Typ,\n       COUNT(*) AS Anzahl,\n       ROUND(AVG(Stundenpreis), 2) AS Durchschnittspreis\nFROM Fahrrad\nGROUP BY Typ\nHAVING COUNT(*) >= 3\nORDER BY Anzahl DESC;", "check": {"kind": "select", "sort": [[1, "desc"]], "sortText": "Anzahl absteigend", "edge": "Der zweite Datensatz enthält einen Typ mit nur einem Fahrrad."}}, {"id": 3, "no": "3", "level": "mittel", "title": "Ausleihen im Juni 2025", "topics": ["JOIN", "Datum"], "task": "<p>Gib Vorname und Nachname des Kunden, das Modell des Fahrrads und den Beginn aller Ausleihen aus, die im Juni 2025 begonnen haben.<\/p><p>Sortiere chronologisch.<\/p>", "hint": "<p>Du brauchst drei Tabellen. <code>Beginn<\/code> ist ein DATETIME, also Datum mit Uhrzeit. Überlege genau, wie du den 30. Juni bis 23:59 Uhr vollständig erfasst.<\/p>", "explain": "<p>Die beiden JOINs laufen über die Fremdschlüssel <code>KundenID<\/code> und <code>FahrradID<\/code>. Der halboffene Zeitraum (<code>&gt;=<\/code> Monatserster, <code>&lt;<\/code> Erster des Folgemonats) erfasst jede Uhrzeit am letzten Tag und funktioniert für jeden Monat, ohne die Monatslänge zu kennen.<\/p>", "pitfall": "<p><code>BETWEEN '2025-06-01' AND '2025-06-30'<\/code> verliert alle Ausleihen, die am 30.06. nach Mitternacht beginnen, denn '2025-06-30' steht für 30.06. 00:00:00. In den Testdaten fehlt dadurch die Fahrt vom 30.06. um 18:15 Uhr.<\/p>", "solution": "SELECT k.Vorname, k.Nachname, f.Modell, a.Beginn\nFROM Ausleihe a\nJOIN Kunde k   ON k.KundenID  = a.KundenID\nJOIN Fahrrad f ON f.FahrradID = a.FahrradID\nWHERE a.Beginn >= '2025-06-01'\n  AND a.Beginn <  '2025-07-01'\nORDER BY a.Beginn;", "check": {"kind": "select", "sort": [[3, "asc"]], "sortText": "Beginn aufsteigend", "edge": "Der zweite Datensatz enthält Fahrten am 30.06.2025 um 23:59 Uhr und am 01.07.2025 um 00:00 Uhr."}}, {"id": 4, "no": "4", "level": "mittel", "title": "Kunden ohne Ausleihe", "topics": ["LEFT JOIN", "IS NULL"], "task": "<p>Gib <code>KundenID<\/code>, <code>Vorname<\/code> und <code>Nachname<\/code> aller Kunden aus, die noch nie ein Fahrrad ausgeliehen haben.<\/p>", "hint": "<p>Ein normaler (INNER) JOIN liefert nur Kunden, die mindestens einen Partner in <code>Ausleihe<\/code> haben. Du brauchst genau die übrigen.<\/p>", "explain": "<p>Der LEFT JOIN behält alle Kunden. Wer keine Ausleihe hat, bekommt in allen Spalten von <code>Ausleihe<\/code> den Wert NULL. Genau diese Zeilen filterst du über den Primärschlüssel der rechten Tabelle heraus.<\/p>", "pitfall": "<p><code>WHERE a.AusleiheID = NULL<\/code> liefert nie ein Ergebnis. Ein Vergleich mit NULL ergibt immer UNKNOWN, prüfen kannst du NULL nur mit <code>IS NULL<\/code>.<\/p>", "solution": "SELECT k.KundenID, k.Vorname, k.Nachname\nFROM Kunde k\nLEFT JOIN Ausleihe a ON a.KundenID = k.KundenID\nWHERE a.AusleiheID IS NULL;", "check": {"kind": "select", "edge": "Im zweiten Datensatz hat Ole Jensen inzwischen eine Fahrt gemacht."}, "alt": "SELECT k.KundenID, k.Vorname, k.Nachname\nFROM Kunde k\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM Ausleihe a\n    WHERE a.KundenID = k.KundenID\n);"}, {"id": 5, "no": "5", "level": "mittel", "title": "Offene Beträge je Kunde", "topics": ["JOIN", "GROUP BY", "SUM"], "task": "<p>Ermittle für jeden Kunden mit unbezahlten Rechnungen die Summe seiner offenen Beträge.<\/p><p>Ausgabe: <code>KundenID<\/code>, <code>Nachname<\/code>, <code>OffenerBetrag<\/code>. Der höchste Betrag steht oben.<\/p>", "hint": "<p><code>Rechnung<\/code> kennt den Kunden nicht direkt, der Weg führt über <code>Ausleihe<\/code>. Filtere die unbezahlten Rechnungen, bevor du gruppierst.<\/p>", "explain": "<p>Der Weg lautet Rechnung → Ausleihe → Kunde. <code>Bezahlt = 0<\/code> ist ein Zeilenfilter und gehört deshalb in WHERE. Kunden ohne offene Rechnung haben danach keine Zeilen mehr und erscheinen automatisch nicht.<\/p>", "pitfall": "<p>Jede Spalte im SELECT, die nicht aggregiert wird, gehört in GROUP BY. Nur nach <code>Nachname<\/code> zu gruppieren wäre falsch, weil zwei Kunden gleich heißen können. Gruppiere deshalb immer auch nach dem Schlüssel.<\/p>", "solution": "SELECT k.KundenID, k.Nachname,\n       SUM(r.Betrag) AS OffenerBetrag\nFROM Rechnung r\nJOIN Ausleihe a ON a.AusleiheID = r.AusleiheID\nJOIN Kunde k    ON k.KundenID   = a.KundenID\nWHERE r.Bezahlt = 0\nGROUP BY k.KundenID, k.Nachname\nORDER BY OffenerBetrag DESC;", "check": {"kind": "select", "sort": [[2, "desc"]], "sortText": "offener Betrag absteigend", "edge": "Im zweiten Datensatz gibt es zwei Kunden mit dem Nachnamen Meier, beide mit offenen Rechnungen."}}, {"id": 6, "no": "6", "level": "mittel", "title": "Preiserhöhung Lastenräder", "topics": ["UPDATE", "ROUND"], "task": "<p>Die Stundenpreise aller Lastenräder steigen um 10 %. Schreibe die Anweisung. Der neue Preis soll auf 2 Nachkommastellen gerundet werden.<\/p>", "hint": "<p>Hier ist kein SELECT gefragt. Der neue Wert lässt sich aus dem alten Wert derselben Zeile berechnen.<\/p>", "explain": "<p>In <code>SET<\/code> darf rechts die Spalte selbst stehen, dann wird mit dem alten Wert der Zeile gerechnet. In den Testdaten wird aus 7,00 € dann 7,70 € und aus 7,50 € dann 8,25 €.<\/p>", "pitfall": "<p><code>* 0.10<\/code> setzt den Preis auf ein Zehntel. Ohne WHERE trifft die Erhöhung jedes Fahrrad in der Tabelle.<\/p>", "solution": "UPDATE Fahrrad\nSET Stundenpreis = ROUND(Stundenpreis * 1.10, 2)\nWHERE Typ = 'Lastenrad';", "check": {"kind": "dml", "edge": "Der zweite Datensatz enthält weitere Fahrräder anderer Typen."}}, {"id": 7, "no": "7", "level": "mittel", "title": "Laufende Ausleihen", "topics": ["JOIN", "IS NULL"], "task": "<p>Gib alle Ausleihen aus, die gerade noch laufen.<\/p><p>Ausgabe: <code>AusleiheID<\/code>, Nachname des Kunden, Modell des Fahrrads und die Bezeichnung der Startstation.<\/p>", "hint": "<p>Woran erkennst du im Schema eine Ausleihe, die noch nicht beendet ist? Die Stationsbezeichnung steht nicht in <code>Ausleihe<\/code>, und <code>Ausleihe<\/code> verweist zweimal auf <code>Station<\/code>.<\/p>", "explain": "<p>Eine laufende Ausleihe hat noch keine Dauer und kein Ziel, beide Spalten sind NULL. Weil <code>Ausleihe<\/code> zwei Fremdschlüssel auf <code>Station<\/code> hat, muss die ON-Bedingung ausdrücklich <code>StartStationID<\/code> nennen.<\/p>", "pitfall": "<p><code>DauerMin = 0<\/code> oder <code>DauerMin = NULL<\/code> findet die laufenden Fahrten nicht. Nur <code>IS NULL<\/code> prüft auf einen fehlenden Wert.<\/p>", "solution": "SELECT a.AusleiheID, k.Nachname, f.Modell,\n       s.Bezeichnung AS Startstation\nFROM Ausleihe a\nJOIN Kunde k   ON k.KundenID  = a.KundenID\nJOIN Fahrrad f ON f.FahrradID = a.FahrradID\nJOIN Station s ON s.StationID = a.StartStationID\nWHERE a.DauerMin IS NULL;", "check": {"kind": "select"}}, {"id": 8, "no": "8", "level": "mittel", "title": "Neue Kundin, erste Fahrt", "topics": ["INSERT", "NULL", "Fremdschlüssel"], "task": "<p>Lege die Kundin Lena Brandt aus Elmshorn an: KundenID 200, geboren am 17.04.2001, registriert heute.<\/p><p>Sie leiht sofort Fahrrad 7 an Station 2 aus: AusleiheID 900, Beginn am 05.10.2026 um 14:30 Uhr. Schreibe beide Anweisungen.<\/p>", "hint": "<p>Zwei INSERT-Anweisungen. Die Reihenfolge ist wegen des Fremdschlüssels nicht beliebig. Welche Werte der Ausleihe sind beim Start noch unbekannt?<\/p>", "explain": "<p>Erst der Kunde, dann die Ausleihe: Sonst verweist <code>KundenID<\/code> 200 auf einen Datensatz, den es noch nicht gibt, und die Fremdschlüsselprüfung schlägt fehl. Ziel und Dauer sind beim Start unbekannt und werden deshalb NULL. Die Spaltenliste macht die Anweisung unabhängig von der Spaltenreihenfolge der Tabelle.<\/p>", "pitfall": "<p>Ein Datum im deutschen Format '17.04.2001' ist kein gültiges Datumsliteral. <code>''<\/code> oder <code>0<\/code> statt NULL würde die Fahrt als beendet erscheinen lassen.<\/p>", "solution": "INSERT INTO Kunde\n    (KundenID, Vorname, Nachname, Ort, Geburtsdatum, RegistriertAm)\nVALUES\n    (200, 'Lena', 'Brandt', 'Elmshorn', '2001-04-17', CURRENT_DATE);\n\nINSERT INTO Ausleihe\n    (AusleiheID, KundenID, FahrradID, StartStationID,\n     ZielStationID, Beginn, DauerMin)\nVALUES\n    (900, 200, 7, 2, NULL, '2026-10-05 14:30:00', NULL);", "check": {"kind": "dml", "ignore": {"Kunde": ["RegistriertAm"]}}}, {"id": 9, "no": "9", "level": "schwer", "title": "Stationen über dem Schnitt", "topics": ["HAVING", "Unterabfrage"], "task": "<p>Gib die Stationen aus, deren durchschnittlicher Stundenpreis (aller dort stehenden Fahrräder) über dem durchschnittlichen Stundenpreis aller Fahrräder liegt.<\/p><p>Ausgabe: <code>Bezeichnung<\/code> und Durchschnittspreis, gerundet auf 2 Nachkommastellen.<\/p>", "hint": "<p>Der Vergleichswert ist eine einzige Zahl, die du mit einer eigenen kleinen Abfrage berechnen kannst. Verglichen wird erst nach der Gruppierung.<\/p>", "explain": "<p>Die Unterabfrage in HAVING liefert genau einen Wert (skalare Unterabfrage). Jede Stationsgruppe wird mit diesem festen Gesamtdurchschnitt verglichen.<\/p>", "pitfall": "<p>Den Durchschnitt der Stationsdurchschnitte als Vergleich zu nehmen, ist nicht dasselbe: Stationen mit wenigen Rädern würden dann zu stark gewichtet.<\/p>", "solution": "SELECT s.Bezeichnung,\n       ROUND(AVG(f.Stundenpreis), 2) AS Durchschnittspreis\nFROM Station s\nJOIN Fahrrad f ON f.StationID = s.StationID\nGROUP BY s.StationID, s.Bezeichnung\nHAVING AVG(f.Stundenpreis) > (SELECT AVG(Stundenpreis)\n                              FROM Fahrrad);", "check": {"kind": "select", "edge": "Im zweiten Datensatz verschieben zusätzliche Räder die Durchschnitte."}}, {"id": 10, "no": "10", "level": "schwer", "title": "Anteil je Fahrradtyp", "topics": ["Unterabfrage im SELECT", "Prozent"], "task": "<p>Berechne für jeden Fahrradtyp, wie viele Ausleihen es gab und welchen prozentualen Anteil das an allen Ausleihen ausmacht (eine Nachkommastelle).<\/p><p>Sortiere nach dem Anteil absteigend.<\/p>", "hint": "<p>Die Gesamtzahl aller Ausleihen ist eine feste Zahl. Du kannst sie als Unterabfrage direkt in die Rechnung einsetzen. Achte auf den Datentyp beim Teilen.<\/p>", "explain": "<p>Die skalare Unterabfrage im SELECT liefert für jede Gruppe denselben Nenner. Die Konstante <code>100.0<\/code> macht den ersten Operanden zur Dezimalzahl, damit nicht ganzzahlig geteilt wird.<\/p>", "pitfall": "<p><code>COUNT(*) / (SELECT COUNT(*) …) * 100<\/code> ergibt in SQL Server, PostgreSQL und SQLite 0, weil Ganzzahl durch Ganzzahl abgeschnitten wird. MySQL rechnet hier dezimal, darauf solltest du dich in der Prüfung aber nicht verlassen.<\/p>", "solution": "SELECT f.Typ,\n       COUNT(*) AS Ausleihen,\n       ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM Ausleihe), 1)\n           AS AnteilProzent\nFROM Ausleihe a\nJOIN Fahrrad f ON f.FahrradID = a.FahrradID\nGROUP BY f.Typ\nORDER BY AnteilProzent DESC;", "check": {"kind": "select", "sort": [[2, "desc"]], "sortText": "Anteil absteigend", "edge": "Der zweite Datensatz enthält einen neuen Typ und weitere Ausleihen."}}, {"id": 11, "no": "11", "level": "schwer", "title": "Teuerstes Fahrrad in der Werkstatt", "topics": ["Abgeleitete Tabelle", "MAX", "Gleichstand"], "task": "<p>Ermittle das Fahrrad mit den höchsten Wartungskosten insgesamt. Haben mehrere Fahrräder dieselbe Höchstsumme, sollen alle erscheinen.<\/p><p>Ausgabe: <code>FahrradID<\/code>, <code>Modell<\/code>, Wartungskosten.<\/p>", "hint": "<p>Du brauchst das Maximum über Summen. Aggregatfunktionen lassen sich nicht direkt verschachteln, aber eine Unterabfrage im FROM kann wie eine Tabelle verwendet werden.<\/p>", "explain": "<p>Die innerste Abfrage bildet die Summe je Fahrrad, die mittlere nimmt davon das Maximum. Außen bleiben alle Fahrräder übrig, deren Summe diesem Maximum entspricht, bei Gleichstand also mehrere. Eine Unterabfrage im FROM braucht einen Alias (<code>AS t<\/code>).<\/p>", "pitfall": "<p><code>MAX(SUM(Kosten))<\/code> ist nicht erlaubt. <code>ORDER BY … LIMIT 1<\/code> liefert bei Gleichstand nur einen Datensatz und ist kein Standard-SQL.<\/p>", "solution": "SELECT f.FahrradID, f.Modell,\n       SUM(w.Kosten) AS Wartungskosten\nFROM Fahrrad f\nJOIN Wartung w ON w.FahrradID = f.FahrradID\nGROUP BY f.FahrradID, f.Modell\nHAVING SUM(w.Kosten) = (\n    SELECT MAX(Summe)\n    FROM (SELECT SUM(Kosten) AS Summe\n          FROM Wartung\n          GROUP BY FahrradID) AS t\n);", "check": {"kind": "select", "edge": "Im zweiten Datensatz haben zwei Fahrräder genau dieselben Wartungskosten (Gleichstand)."}, "alt": "-- Variante mit ALL (Standard-SQL, z. B. MySQL, PostgreSQL)\nSELECT f.FahrradID, f.Modell, SUM(w.Kosten) AS Wartungskosten\nFROM Fahrrad f\nJOIN Wartung w ON w.FahrradID = f.FahrradID\nGROUP BY f.FahrradID, f.Modell\nHAVING SUM(w.Kosten) >= ALL (SELECT SUM(Kosten)\n                             FROM Wartung\n                             GROUP BY FahrradID);"}, {"id": 12, "no": "12", "level": "schwer", "title": "E-Bike und Lastenrad", "topics": ["GROUP BY", "COUNT DISTINCT"], "task": "<p>Gib alle Kunden aus, die sowohl mindestens ein E-Bike als auch mindestens ein Lastenrad ausgeliehen haben (laufende Ausleihen zählen mit). Jeder Kunde erscheint nur einmal.<\/p>", "hint": "<p>Eine einzelne Zeile kann nicht gleichzeitig beide Typen haben. Betrachte deshalb alle Ausleihen eines Kunden als Gruppe und zähle, was darin vorkommt.<\/p>", "explain": "<p>Erst wird auf die zwei Typen eingeschränkt, dann zählt <code>COUNT(DISTINCT f.Typ)<\/code> je Kunde, wie viele verschiedene davon vorkommen. Nur bei 2 waren beide dabei.<\/p>", "pitfall": "<p><code>WHERE Typ = 'E-Bike' AND Typ = 'Lastenrad'<\/code> ist immer leer. Mit <code>COUNT(*)<\/code> statt <code>COUNT(DISTINCT …)<\/code> zählt ein Kunde mit zwei E-Bike-Fahrten fälschlich mit.<\/p>", "solution": "SELECT k.KundenID, k.Vorname, k.Nachname\nFROM Kunde k\nJOIN Ausleihe a ON a.KundenID  = k.KundenID\nJOIN Fahrrad f  ON f.FahrradID = a.FahrradID\nWHERE f.Typ IN ('E-Bike', 'Lastenrad')\nGROUP BY k.KundenID, k.Vorname, k.Nachname\nHAVING COUNT(DISTINCT f.Typ) = 2;", "check": {"kind": "select", "edge": "Im zweiten Datensatz hat Mia Schulz zwei E-Bike-Fahrten, aber nie ein Lastenrad."}, "alt": "-- Variante mit Mengenoperation (MySQL ab 8.0.31)\nSELECT KundenID, Vorname, Nachname\nFROM Kunde\nWHERE KundenID IN (\n    SELECT a.KundenID FROM Ausleihe a\n    JOIN Fahrrad f ON f.FahrradID = a.FahrradID\n    WHERE f.Typ = 'E-Bike'\n    INTERSECT\n    SELECT a.KundenID FROM Ausleihe a\n    JOIN Fahrrad f ON f.FahrradID = a.FahrradID\n    WHERE f.Typ = 'Lastenrad'\n);"}, {"id": 13, "no": "13", "level": "schwer", "title": "Starts und Rückgaben je Station", "topics": ["Korrelierte Unterabfrage", "Fan-out"], "task": "<p>Gib für jede Station aus, wie viele Ausleihen dort gestartet und wie viele dort beendet wurden. Auch Stationen mit 0 sollen erscheinen.<\/p><p>Ausgabe: <code>Bezeichnung<\/code>, <code>Starts<\/code>, <code>Rueckgaben<\/code>.<\/p>", "hint": "<p><code>Ausleihe<\/code> hat zwei Fremdschlüssel auf <code>Station<\/code>. Zwei Zählungen über zwei JOINs in einer Abfrage gehen schief. Ermittle jede Zahl getrennt.<\/p>", "explain": "<p>Jede Unterabfrage im SELECT wird für die aktuelle Station einzeln ausgeführt (korreliert über <code>s.StationID<\/code>). <code>COUNT(*)<\/code> liefert 0, wenn nichts passt, daher fehlt keine Station.<\/p>", "pitfall": "<p>Zwei LEFT JOINs auf <code>Ausleihe<\/code> mit <code>COUNT(*)<\/code> vervielfachen sich: Jeder Start wird mit jeder Rückgabe derselben Station kombiniert. In den Testdaten zeigt der Bahnhof Elmshorn so zweimal 90 statt 10 Starts und 9 Rückgaben.<\/p>", "solution": "SELECT s.Bezeichnung,\n       (SELECT COUNT(*) FROM Ausleihe a\n        WHERE a.StartStationID = s.StationID) AS Starts,\n       (SELECT COUNT(*) FROM Ausleihe a\n        WHERE a.ZielStationID = s.StationID)  AS Rueckgaben\nFROM Station s\nORDER BY s.Bezeichnung;", "check": {"kind": "select", "sort": [[0, "asc"]], "sortText": "Bezeichnung aufsteigend"}, "alt": "SELECT s.Bezeichnung,\n       COUNT(DISTINCT st.AusleiheID) AS Starts,\n       COUNT(DISTINCT zi.AusleiheID) AS Rueckgaben\nFROM Station s\nLEFT JOIN Ausleihe st ON st.StartStationID = s.StationID\nLEFT JOIN Ausleihe zi ON zi.ZielStationID  = s.StationID\nGROUP BY s.StationID, s.Bezeichnung\nORDER BY s.Bezeichnung;"}, {"id": 14, "no": "14", "level": "schwer", "title": "Stationen ohne Rückgabe", "topics": ["NOT EXISTS", "NULL-Falle"], "task": "<p>Gib alle Stationen aus, an denen noch nie eine Ausleihe beendet wurde.<\/p>", "hint": "<p>Spiele deine Lösung gedanklich mit einer laufenden Ausleihe durch. Was steht dann in <code>ZielStationID<\/code>, und wie verhält sich dein Vergleich mit diesem Wert?<\/p>", "explain": "<p><code>x NOT IN (1, 2, NULL)<\/code> bedeutet <code>x &lt;&gt; 1 AND x &lt;&gt; 2 AND x &lt;&gt; NULL<\/code>. Der letzte Vergleich ist UNKNOWN, deshalb wird die ganze Bedingung nie wahr. NOT EXISTS prüft nur, ob eine passende Zeile existiert, und ist damit NULL-sicher.<\/p>", "pitfall": "<p><code>WHERE StationID NOT IN (SELECT ZielStationID FROM Ausleihe)<\/code> liefert ein leeres Ergebnis, sobald eine Ausleihe noch läuft. In den Testdaten verschwindet dadurch das Zentrallager.<\/p>", "solution": "SELECT s.StationID, s.Bezeichnung\nFROM Station s\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM Ausleihe a\n    WHERE a.ZielStationID = s.StationID\n);", "check": {"kind": "select"}, "alt": "SELECT s.StationID, s.Bezeichnung\nFROM Station s\nWHERE s.StationID NOT IN (\n    SELECT a.ZielStationID\n    FROM Ausleihe a\n    WHERE a.ZielStationID IS NOT NULL\n);"}, {"id": 15, "no": "15", "level": "schwer", "title": "Teurer als der eigene Typ", "topics": ["Korrelierte Unterabfrage"], "task": "<p>Gib alle Fahrräder aus, deren Stundenpreis über dem Durchschnittspreis ihres eigenen Typs liegt.<\/p><p>Ausgabe: <code>FahrradID<\/code>, <code>Typ<\/code>, <code>Modell<\/code>, <code>Stundenpreis<\/code>.<\/p>", "hint": "<p>Der Vergleichswert ist nicht für alle Zeilen gleich. Er hängt vom Typ der Zeile ab, die gerade geprüft wird.<\/p>", "explain": "<p><code>f2.Typ = f.Typ<\/code> verbindet die innere Abfrage mit der äußeren Zeile. Für jedes Fahrrad wird so der Durchschnitt nur seines Typs berechnet. Weil zweimal dieselbe Tabelle vorkommt, sind die Aliase Pflicht.<\/p>", "pitfall": "<p>Ohne die Bedingung <code>f2.Typ = f.Typ<\/code> wird jedes Rad mit dem Gesamtdurchschnitt verglichen. Dann landet in den Testdaten kein einziges Trekkingrad im Ergebnis.<\/p>", "solution": "SELECT f.FahrradID, f.Typ, f.Modell, f.Stundenpreis\nFROM Fahrrad f\nWHERE f.Stundenpreis > (\n    SELECT AVG(f2.Stundenpreis)\n    FROM Fahrrad f2\n    WHERE f2.Typ = f.Typ\n)\nORDER BY f.Typ, f.Stundenpreis DESC;", "check": {"kind": "select", "edge": "Der zweite Datensatz enthält einen neuen Typ mit nur einem Rad."}, "alt": "SELECT f.FahrradID, f.Typ, f.Modell, f.Stundenpreis\nFROM Fahrrad f\nJOIN (SELECT Typ, AVG(Stundenpreis) AS Schnitt\n      FROM Fahrrad\n      GROUP BY Typ) d ON d.Typ = f.Typ\nWHERE f.Stundenpreis > d.Schnitt;"}, {"id": 16, "no": "16", "level": "schwer", "title": "Tabelle für Bewertungen", "topics": ["CREATE TABLE", "Constraints"], "task": "<p>Nach jeder Ausleihe kann der Kunde eine Bewertung abgeben. Lege die Tabelle <code>Bewertung<\/code> an:<\/p><ul><li>BewertungID: ganze Zahl, Primärschlüssel<\/li><li>AusleiheID: Pflichtfeld, Fremdschlüssel; je Ausleihe höchstens eine Bewertung<\/li><li>Sterne: Pflichtfeld, nur Werte von 1 bis 5 erlaubt<\/li><li>Kommentar: optional, höchstens 500 Zeichen<\/li><li>ErstelltAm: Pflichtfeld, Datum<\/li><\/ul>", "hint": "<p>Jede Anforderung entspricht einem Constraint: PRIMARY KEY, NOT NULL, UNIQUE, CHECK und FOREIGN KEY … REFERENCES.<\/p>", "explain": "<p><code>UNIQUE<\/code> auf dem Fremdschlüssel macht aus der 1:n-Beziehung eine 1:c-Beziehung: Eine Ausleihe hat keine oder genau eine Bewertung. <code>CHECK<\/code> begrenzt den Wertebereich. Spalten ohne NOT NULL sind automatisch optional.<\/p>", "pitfall": "<p>Wer UNIQUE vergisst, erlaubt beliebig viele Bewertungen je Ausleihe. <code>Sterne<\/code> als VARCHAR würde auch '6' oder 'gut' zulassen.<\/p>", "solution": "CREATE TABLE Bewertung (\n    BewertungID INT          PRIMARY KEY,\n    AusleiheID  INT          NOT NULL UNIQUE,\n    Sterne      INT          NOT NULL CHECK (Sterne BETWEEN 1 AND 5),\n    Kommentar   VARCHAR(500),\n    ErstelltAm  DATE         NOT NULL,\n    FOREIGN KEY (AusleiheID) REFERENCES Ausleihe (AusleiheID)\n);", "check": {"kind": "ddl", "asserts": [{"type": "table", "table": "Bewertung", "exists": true, "msg": "Es wurde keine Tabelle namens Bewertung angelegt."}, {"type": "type", "table": "Bewertung", "col": "Sterne", "re": "^INT", "msg": "Sterne ist eine ganze Zahl, also INT."}, {"type": "type", "table": "Bewertung", "col": "Kommentar", "re": "^(VAR)?CHAR\\s*\\(\\s*500\\s*\\)$", "msg": "Kommentar ist Text mit höchstens 500 Zeichen: VARCHAR(500)."}, {"type": "type", "table": "Bewertung", "col": "ErstelltAm", "re": "^DATE$", "msg": "ErstelltAm ist ein Datum: DATE."}, {"type": "insert", "pre": [], "sql": "INSERT INTO Bewertung (BewertungID, AusleiheID, Sterne, Kommentar, ErstelltAm) VALUES (1, 3, 4, 'Super', '2026-01-01')", "ok": true, "msg": "Ein gültiger Datensatz (Ausleihe 3, 4 Sterne) wird abgelehnt."}, {"type": "insert", "pre": [], "sql": "INSERT INTO Bewertung (BewertungID, AusleiheID, Sterne, Kommentar, ErstelltAm) VALUES (2, 4, 5, NULL, '2026-01-02')", "ok": true, "msg": "Ein Datensatz ohne Kommentar wird abgelehnt. Kommentar soll optional sein."}, {"type": "insert", "pre": [], "sql": "INSERT INTO Bewertung (BewertungID, AusleiheID, Sterne, Kommentar, ErstelltAm) VALUES (3, 5, 6, NULL, '2026-01-02')", "ok": false, "msg": "6 Sterne werden angenommen. Es fehlt ein CHECK, der nur 1 bis 5 erlaubt."}, {"type": "insert", "pre": [], "sql": "INSERT INTO Bewertung (BewertungID, AusleiheID, Sterne, Kommentar, ErstelltAm) VALUES (4, 5, 0, NULL, '2026-01-02')", "ok": false, "msg": "0 Sterne werden angenommen. Der CHECK muss auch die Untergrenze 1 abdecken."}, {"type": "insert", "pre": ["INSERT INTO Bewertung (BewertungID, AusleiheID, Sterne, Kommentar, ErstelltAm) VALUES (10, 3, 4, NULL, '2026-01-01')"], "sql": "INSERT INTO Bewertung (BewertungID, AusleiheID, Sterne, Kommentar, ErstelltAm) VALUES (5, 3, 2, NULL, '2026-01-03')", "ok": false, "msg": "Eine zweite Bewertung für dieselbe Ausleihe wird angenommen. AusleiheID braucht UNIQUE."}, {"type": "insert", "pre": [], "sql": "INSERT INTO Bewertung (BewertungID, AusleiheID, Sterne, Kommentar, ErstelltAm) VALUES (6, NULL, 3, NULL, '2026-01-03')", "ok": false, "msg": "Eine Bewertung ohne AusleiheID wird angenommen. Es fehlt NOT NULL."}, {"type": "insert", "pre": [], "sql": "INSERT INTO Bewertung (BewertungID, AusleiheID, Sterne, Kommentar, ErstelltAm) VALUES (7, 6, NULL, NULL, '2026-01-03')", "ok": false, "msg": "Eine Bewertung ohne Sterne wird angenommen. Es fehlt NOT NULL."}, {"type": "insert", "pre": [], "sql": "INSERT INTO Bewertung (BewertungID, AusleiheID, Sterne, Kommentar, ErstelltAm) VALUES (8, 7, 3, NULL, NULL)", "ok": false, "msg": "Eine Bewertung ohne ErstelltAm wird angenommen. Es fehlt NOT NULL."}, {"type": "insert", "pre": [], "sql": "INSERT INTO Bewertung (BewertungID, AusleiheID, Sterne, Kommentar, ErstelltAm) VALUES (9, 999, 3, NULL, '2026-01-03')", "ok": false, "msg": "Eine Bewertung zur nicht vorhandenen Ausleihe 999 wird angenommen. Der Fremdschlüssel auf Ausleihe fehlt."}, {"type": "insert", "pre": ["INSERT INTO Bewertung (BewertungID, AusleiheID, Sterne, Kommentar, ErstelltAm) VALUES (1, 8, 4, NULL, '2026-01-01')"], "sql": "INSERT INTO Bewertung (BewertungID, AusleiheID, Sterne, Kommentar, ErstelltAm) VALUES (1, 9, 3, NULL, '2026-01-03')", "ok": false, "msg": "Zwei Bewertungen mit derselben BewertungID werden angenommen. Der Primärschlüssel fehlt."}]}}, {"id": 17, "no": "17", "level": "sehr", "title": "Letzte Fahrt je Kunde", "topics": ["Korrelierte Unterabfrage", "MAX"], "task": "<p>Gib für jeden Kunden, der schon einmal ausgeliehen hat, seine jüngste Ausleihe aus: Vorname, Nachname, Beginn und Modell des Fahrrads.<\/p>", "hint": "<p>MAX(Beginn) je Kunde ist schnell gefunden. Das Modell gehört aber zu genau dieser einen Zeile. Lass eine Unterabfrage für jeden Kunden einzeln seinen letzten Beginn ermitteln und behalte nur die Zeile, die dazu passt.<\/p>", "explain": "<p>Die korrelierte Unterabfrage liefert für jeden Kunden seinen spätesten Beginn. Außen bleibt pro Kunde nur die Ausleihe übrig, deren Beginn genau diesem Wert entspricht, und von dieser Zeile stammt dann auch das Modell.<\/p>", "pitfall": "<p><code>SELECT k.Nachname, MAX(a.Beginn), f.Modell … GROUP BY k.KundenID<\/code> ist falsch: <code>Modell<\/code> ist weder gruppiert noch aggregiert. MySQL gibt im lockeren Modus ein beliebiges Modell aus, nicht das der letzten Fahrt.<\/p>", "solution": "SELECT k.Vorname, k.Nachname, a.Beginn, f.Modell\nFROM Kunde k\nJOIN Ausleihe a ON a.KundenID  = k.KundenID\nJOIN Fahrrad f  ON f.FahrradID = a.FahrradID\nWHERE a.Beginn = (\n    SELECT MAX(a2.Beginn)\n    FROM Ausleihe a2\n    WHERE a2.KundenID = k.KundenID\n)\nORDER BY k.Nachname;", "check": {"kind": "select", "sort": [[1, "asc"]], "sortText": "Nachname aufsteigend"}}, {"id": 18, "no": "18", "level": "sehr", "title": "Alle Typen gefahren", "topics": ["Relationale Division", "COUNT DISTINCT"], "task": "<p>Gib alle Kunden aus, die schon jeden im Bestand vorhandenen Fahrradtyp mindestens einmal ausgeliehen haben.<\/p><p>Die Abfrage soll auch dann noch stimmen, wenn später ein neuer Typ (zum Beispiel 'Gravel') hinzukommt.<\/p>", "hint": "<p>Zähle je Kunde, wie viele verschiedene Typen er gefahren ist, und vergleiche das mit der Zahl der Typen, die es insgesamt gibt. Tippe keine Typnamen und keine feste Zahl ein.<\/p>", "explain": "<p>Das ist eine relationale Division („Kunden, die alle … haben“). Die Zählvariante vergleicht die Anzahl gefahrener Typen mit der Gesamtzahl. Weil die Gesamtzahl per Unterabfrage ermittelt wird, passt sich die Abfrage an neue Typen an.<\/p>", "pitfall": "<p><code>HAVING COUNT(DISTINCT f.Typ) = 3<\/code> stimmt nur, solange es genau drei Typen gibt. Das verstößt gegen die Anforderung.<\/p>", "solution": "SELECT k.KundenID, k.Vorname, k.Nachname\nFROM Kunde k\nJOIN Ausleihe a ON a.KundenID  = k.KundenID\nJOIN Fahrrad f  ON f.FahrradID = a.FahrradID\nGROUP BY k.KundenID, k.Vorname, k.Nachname\nHAVING COUNT(DISTINCT f.Typ) = (SELECT COUNT(DISTINCT Typ)\n                                FROM Fahrrad);", "check": {"kind": "select", "edge": "Im zweiten Datensatz gibt es den neuen Typ 'Gravel', den noch niemand gefahren ist. Dann erfüllt niemand die Bedingung."}, "alt": "-- Doppeltes NOT EXISTS: Es gibt keinen Typ,\n-- den der Kunde nicht gefahren ist.\nSELECT k.KundenID, k.Vorname, k.Nachname\nFROM Kunde k\nWHERE NOT EXISTS (\n    SELECT 1 FROM Fahrrad t\n    WHERE NOT EXISTS (\n        SELECT 1\n        FROM Ausleihe a\n        JOIN Fahrrad f ON f.FahrradID = a.FahrradID\n        WHERE a.KundenID = k.KundenID\n          AND f.Typ = t.Typ\n    )\n);"}, {"id": 19, "no": "19", "level": "sehr", "title": "Umzug ins Zentrallager", "topics": ["UPDATE", "Unterabfragen", "HAVING"], "task": "<p>Alle Fahrräder mit mehr als 3 Wartungen sollen der Station mit der Bezeichnung 'Zentrallager' zugeordnet werden.<\/p><p>Fahrräder, die gerade ausgeliehen sind, bleiben unverändert. Die StationID des Zentrallagers ist nicht bekannt.<\/p>", "hint": "<p>Ein UPDATE mit drei Unterabfragen: eine liefert den neuen Wert, zwei bestimmen, welche Zeilen geändert werden.<\/p>", "explain": "<p>Die Unterabfrage in SET muss genau einen Wert liefern. Die Auswahl der Zeilen kombiniert zwei Mengen: Räder mit mehr als 3 Wartungen, abzüglich der Räder in laufenden Ausleihen. NOT IN ist hier sicher, weil <code>FahrradID<\/code> nie NULL ist. In den Testdaten werden die Räder 1 und 10 verschoben; Rad 3 hat zwar 4 Wartungen, ist aber gerade unterwegs.<\/p>", "pitfall": "<p>Die StationID 4 fest einzutragen widerspricht der Aufgabe. <code>WHERE COUNT(*) &gt; 3<\/code> direkt im UPDATE ist nicht möglich, die Zählung braucht eine eigene Unterabfrage mit GROUP BY und HAVING.<\/p>", "solution": "UPDATE Fahrrad\nSET StationID = (SELECT StationID\n                 FROM Station\n                 WHERE Bezeichnung = 'Zentrallager')\nWHERE FahrradID IN (SELECT FahrradID\n                    FROM Wartung\n                    GROUP BY FahrradID\n                    HAVING COUNT(*) > 3)\n  AND FahrradID NOT IN (SELECT FahrradID\n                        FROM Ausleihe\n                        WHERE DauerMin IS NULL);", "check": {"kind": "dml", "edge": "Im zweiten Datensatz hat ein Rad eine zusätzliche Wartung.", "require": [["zentrallager", "Die StationID des Zentrallagers ist laut Aufgabe unbekannt. Ermittle sie mit einer Unterabfrage über die Bezeichnung 'Zentrallager'."]]}}, {"id": 20, "no": "20", "level": "sehr", "title": "Rechnungen nachträglich erzeugen", "topics": ["INSERT … SELECT", "NOT EXISTS", "Berechnung"], "task": "<p>Für alle abgeschlossenen Ausleihen, zu denen es noch keine Rechnung gibt, soll eine Rechnung angelegt werden.<\/p><p>Betrag = Dauer in Stunden × Stundenpreis des Fahrrads, auf Cent gerundet. Bezahlt = 0, Rechnungsdatum = heute. Die RechnungsNr wird automatisch vergeben.<\/p>", "hint": "<p>INSERT kann statt VALUES auch das Ergebnis eines SELECT übernehmen. Zwei Bedingungen: Die Ausleihe ist abgeschlossen, und es gibt noch keine Rechnung zu ihr. Achte bei der Umrechnung von Minuten in Stunden auf den Datentyp.<\/p>", "explain": "<p>Die Spalten im SELECT müssen in Anzahl und Reihenfolge zur Spaltenliste des INSERT passen. <code>RechnungsNr<\/code> fehlt bewusst, weil sie automatisch vergeben wird. In den Testdaten entstehen zwei Rechnungen, für die Ausleihen 19 und 22.<\/p>", "pitfall": "<p><code>DauerMin / 60<\/code> rechnet in vielen Systemen ganzzahlig: Aus 80 Minuten wird 1 Stunde. Und <code>VALUES (SELECT …)<\/code> ist keine gültige Form für mehrere Zeilen.<\/p>", "solution": "INSERT INTO Rechnung (AusleiheID, Betrag, Bezahlt, Rechnungsdatum)\nSELECT a.AusleiheID,\n       ROUND(a.DauerMin / 60.0 * f.Stundenpreis, 2),\n       0,\n       CURRENT_DATE\nFROM Ausleihe a\nJOIN Fahrrad f ON f.FahrradID = a.FahrradID\nWHERE a.DauerMin IS NOT NULL\n  AND NOT EXISTS (SELECT 1\n                  FROM Rechnung r\n                  WHERE r.AusleiheID = a.AusleiheID);", "check": {"kind": "dml", "ignore": {"Rechnung": ["RechnungsNr", "Rechnungsdatum"]}, "edge": "Der zweite Datensatz enthält weitere Ausleihen ohne Rechnung."}}, {"id": 21, "no": "21", "level": "sehr", "title": "Wartung frisst Umsatz", "topics": ["Abgeleitete Tabellen", "LEFT JOIN", "COALESCE", "Fan-out"], "task": "<p>Gib alle Fahrräder aus, deren Wartungskosten insgesamt höher sind als ihr bezahlter Umsatz insgesamt. Fahrräder ohne Umsatz zählen mit 0 €.<\/p><p>Ausgabe: <code>FahrradID<\/code>, <code>Modell<\/code>, Wartungskosten, Umsatz.<\/p>", "hint": "<p>Wartungen und Rechnungen hängen beide am Fahrrad, aber unabhängig voneinander. Steckst du beides in einen JOIN und summierst danach, stimmen die Summen nicht. Aggregiere jede Seite für sich.<\/p>", "explain": "<p>Jede abgeleitete Tabelle liefert genau eine Zeile pro Fahrrad, deshalb kann beim Zusammenführen nichts mehr doppelt gezählt werden. Die LEFT JOINs behalten Räder ohne Wartung oder ohne Umsatz, <code>COALESCE<\/code> macht aus dem fehlenden Wert eine 0.<\/p>", "pitfall": "<p>Fahrrad ⋈ Wartung ⋈ Ausleihe ⋈ Rechnung mit anschließendem SUM vervielfacht beide Seiten: Jede Wartung wird mit jeder Rechnung kombiniert. In den Testdaten erscheint so Rad 11 (Wartung 55,00 €, Umsatz 67,50 €) fälschlich mit 110,00 € Wartungskosten im Ergebnis.<\/p>", "solution": "SELECT f.FahrradID, f.Modell,\n       COALESCE(w.Kosten, 0) AS Wartungskosten,\n       COALESCE(u.Umsatz, 0) AS Umsatz\nFROM Fahrrad f\nLEFT JOIN (SELECT FahrradID, SUM(Kosten) AS Kosten\n           FROM Wartung\n           GROUP BY FahrradID) w\n       ON w.FahrradID = f.FahrradID\nLEFT JOIN (SELECT a.FahrradID, SUM(r.Betrag) AS Umsatz\n           FROM Ausleihe a\n           JOIN Rechnung r ON r.AusleiheID = a.AusleiheID\n           WHERE r.Bezahlt = 1\n           GROUP BY a.FahrradID) u\n       ON u.FahrradID = f.FahrradID\nWHERE COALESCE(w.Kosten, 0) > COALESCE(u.Umsatz, 0);", "check": {"kind": "select"}}, {"id": 22, "no": "22", "level": "sehr", "title": "Über dem Stationsschnitt", "topics": ["Self-Join", "Korrelierte Unterabfrage", "LEFT JOIN"], "task": "<p>Gib alle Mitarbeiter aus, die mehr verdienen als der Durchschnitt der Mitarbeiter an ihrer eigenen Station.<\/p><p>Zeige dazu die Bezeichnung der Station und den Namen des Vorgesetzten. Mitarbeiter ohne Vorgesetzten sollen trotzdem erscheinen.<\/p>", "hint": "<p>Drei Bausteine: eine korrelierte Unterabfrage für den Stationsschnitt, ein Self-Join auf <code>Mitarbeiter<\/code> für den Vorgesetzten und die Frage, welche JOIN-Art dabei niemanden verliert.<\/p>", "explain": "<p><code>Mitarbeiter<\/code> kommt dreimal vor: als <code>m<\/code> (der Geprüfte), als <code>v<\/code> (sein Vorgesetzter) und als <code>m2<\/code> in der Unterabfrage. Der LEFT JOIN auf <code>v<\/code> behält die Geschäftsführung, deren <code>VorgesetzterID<\/code> NULL ist; in der Spalte Vorgesetzter steht dann NULL.<\/p>", "pitfall": "<p>Mit einem INNER JOIN auf den Vorgesetzten fällt Kerstin Vogt heraus, obwohl sie über dem Schnitt ihrer Station liegt.<\/p>", "solution": "SELECT m.Name,\n       s.Bezeichnung AS Station,\n       m.Gehalt,\n       v.Name AS Vorgesetzter\nFROM Mitarbeiter m\nJOIN Station s          ON s.StationID     = m.StationID\nLEFT JOIN Mitarbeiter v ON v.MitarbeiterID = m.VorgesetzterID\nWHERE m.Gehalt > (SELECT AVG(m2.Gehalt)\n                  FROM Mitarbeiter m2\n                  WHERE m2.StationID = m.StationID);", "check": {"kind": "select"}}, {"id": 23, "no": "23", "level": "sehr", "title": "Mahnliste als View", "topics": ["CREATE VIEW", "GROUP BY", "MIN"], "task": "<p>a) Lege eine View <code>OffenePosten<\/code> an. Sie enthält für jeden Kunden mit unbezahlten Rechnungen: KundenID, Vorname, Nachname, Anzahl offener Rechnungen, Summe der offenen Beträge und das Datum der ältesten offenen Rechnung.<\/p><p>b) Erstelle mithilfe der View die Mahnliste: alle Kunden, deren älteste offene Rechnung vor dem 01.09.2025 liegt und deren offene Summe mehr als 5,00 € beträgt.<\/p>", "hint": "<p>Eine View ist eine gespeicherte SELECT-Abfrage, hier mit GROUP BY. In b) behandelst du die View wie eine Tabelle. Die berechneten Spalten brauchen deshalb sprechende Aliasnamen.<\/p>", "explain": "<p>Das älteste Datum ist das kleinste, also <code>MIN<\/code>. Weil die View schon gruppiert hat, ist <code>SummeOffen<\/code> in b) eine normale Spalte und kann mit WHERE gefiltert werden. In den Testdaten stehen Mia Schulz und Jonas Meier auf der Mahnliste.<\/p>", "pitfall": "<p>Ohne Aliase heißen die Spalten etwa <code>SUM(r.Betrag)<\/code> und lassen sich in b) kaum ansprechen. <code>ORDER BY<\/code> gehört in die Abfrage auf die View, nicht in die View selbst.<\/p>", "solution": "-- a)\nCREATE VIEW OffenePosten AS\nSELECT k.KundenID, k.Vorname, k.Nachname,\n       COUNT(*)              AS AnzahlOffen,\n       SUM(r.Betrag)         AS SummeOffen,\n       MIN(r.Rechnungsdatum) AS AeltesteRechnung\nFROM Kunde k\nJOIN Ausleihe a ON a.KundenID   = k.KundenID\nJOIN Rechnung r ON r.AusleiheID = a.AusleiheID\nWHERE r.Bezahlt = 0\nGROUP BY k.KundenID, k.Vorname, k.Nachname;\n\n-- b)\nSELECT Vorname, Nachname, AnzahlOffen, SummeOffen, AeltesteRechnung\nFROM OffenePosten\nWHERE AeltesteRechnung < '2025-09-01'\n  AND SummeOffen > 5.00\nORDER BY SummeOffen DESC;", "check": {"kind": "view", "view": "OffenePosten", "sort": [[3, "desc"]], "sortText": "offene Summe absteigend", "edge": "Im zweiten Datensatz hat eine weitere Kundin eine offene Rechnung."}}, {"id": 24, "no": "24", "level": "sehr", "title": "Treue Stammkunden", "topics": ["HAVING", "NOT EXISTS", "Zeitraum"], "task": "<p>Gesucht sind Kunden, die im Jahr 2025 mindestens 3 Ausleihen begonnen haben und keine einzige offene Rechnung haben, egal aus welchem Jahr.<\/p><p>Ausgabe: <code>KundenID<\/code>, <code>Vorname<\/code>, <code>Nachname<\/code>, Anzahl der Ausleihen 2025.<\/p>", "hint": "<p>Zwei Bedingungen mit verschiedenen Zeiträumen: Die Zählung betrifft nur 2025, die Prüfung auf offene Rechnungen alle Jahre. Beides lässt sich deshalb nicht über denselben JOIN erledigen.<\/p>", "explain": "<p>Die äußere Abfrage zählt nur Ausleihen aus 2025. Die NOT-EXISTS-Unterabfrage hat ihren eigenen Alias <code>a2<\/code> und keine Datumsgrenze, sie prüft also alle Rechnungen des Kunden. In den Testdaten erfüllen Anna Petersen und Fatma Yilmaz beide Bedingungen.<\/p>", "pitfall": "<p>Rechnung direkt mitjoinen und <code>WHERE r.Bezahlt = 1<\/code> filtern: Dann zählen nur bezahlte Fahrten aus 2025, Ausleihen ohne Rechnung fallen aus der Zählung, und offene Rechnungen aus anderen Jahren übersieht die Abfrage komplett. In den Testdaten rutscht so Jonas Meier in die Liste, obwohl er offene Rechnungen von 2024 und 2026 hat.<\/p>", "solution": "SELECT k.KundenID, k.Vorname, k.Nachname,\n       COUNT(*) AS Ausleihen2025\nFROM Kunde k\nJOIN Ausleihe a ON a.KundenID = k.KundenID\nWHERE a.Beginn >= '2025-01-01'\n  AND a.Beginn <  '2026-01-01'\n  AND NOT EXISTS (\n        SELECT 1\n        FROM Ausleihe a2\n        JOIN Rechnung r ON r.AusleiheID = a2.AusleiheID\n        WHERE a2.KundenID = k.KundenID\n          AND r.Bezahlt = 0)\nGROUP BY k.KundenID, k.Vorname, k.Nachname\nHAVING COUNT(*) >= 3;", "check": {"kind": "select", "edge": "Der zweite Datensatz enthält weitere Ausleihen und Rechnungen aus 2025."}}, {"id": 25, "no": "G1", "level": "grund", "title": "Der passende Datentyp", "topics": ["Datentypen", "DECIMAL", "DATE", "CHAR/VARCHAR"], "task": "<p>Elbrad legt einen Zubehör-Katalog an. Für jedes Teil werden diese Angaben gespeichert:<\/p><div class=\"tw\"><table><thead><tr><th>Angabe<\/th><th>Beispielwert<\/th><\/tr><\/thead><tbody><tr><td>Artikelnummer<\/td><td>ZB-0042<\/td><\/tr><tr><td>Bezeichnung<\/td><td>Fahrradkorb vorne, Weide<\/td><\/tr><tr><td>Preis<\/td><td>24,90 €<\/td><\/tr><tr><td>Lagerbestand<\/td><td>17 Stück<\/td><\/tr><tr><td>Kaufdatum<\/td><td>14. März 2025<\/td><\/tr><tr><td>Letzte Inventur<\/td><td>14. März 2025, 16:45 Uhr<\/td><\/tr><tr><td>Abholzeit<\/td><td>9:30 Uhr<\/td><\/tr><tr><td>Im Sortiment<\/td><td>ja<\/td><\/tr><tr><td>PLZ des Lieferanten<\/td><td>01067<\/td><\/tr><\/tbody><\/table><\/div><p>a) Wähle für jede Angabe einen passenden Datentyp.<\/p><p>b) Schreib auf, wie der Beispielwert in einer SQL-Anweisung bzw. in der Datenbank aussieht.<\/p><p>c) Warum sind INT für die PLZ und FLOAT für den Preis keine gute Wahl?<\/p><p>d) Was ist der Unterschied zwischen <code>CHAR(5)<\/code> und <code>VARCHAR(5)<\/code>?<\/p>", "hint": "<p>Frag dich bei jeder Angabe: Wird damit gerechnet? Hat der Wert immer dieselbe Länge? Braucht er Nachkommastellen, eine Uhrzeit oder nur ein Datum? Und wie schreibt SQL Kommazahlen und Datumswerte?<\/p>", "explain": "<p><code>DECIMAL(6,2)<\/code> bedeutet 6 Stellen insgesamt, davon 2 nach dem Komma. Der größte Wert ist also 9999.99. Text, Datum und Uhrzeit stehen im SQL immer in einfachen Hochkommas, Zahlen nie.<\/p>", "pitfall": "<p><code>DECIMAL(6,2)<\/code> wird oft als „6 Stellen vor dem Komma“ gelesen. Und im SQL werden gern deutsche Schreibweisen wie '14.03.2025' oder 24,90 verwendet: Das Datum wird dann nur als Text verglichen, und das Komma trennt zwei Werte.<\/p>", "solution": null, "check": {"kind": "none"}, "answer": "<div class=\"tw\"><table><thead><tr><th>Angabe<\/th><th>Datentyp<\/th><th>So steht es im SQL / in der DB<\/th><\/tr><\/thead><tbody><tr><td>Artikelnummer<\/td><td><code>VARCHAR(10)<\/code> oder <code>CHAR(7)<\/code> bei fester Länge<\/td><td><code>'ZB-0042'<\/code><\/td><\/tr><tr><td>Bezeichnung<\/td><td><code>VARCHAR(100)<\/code><\/td><td><code>'Fahrradkorb vorne, Weide'<\/code><\/td><\/tr><tr><td>Preis<\/td><td><code>DECIMAL(6,2)<\/code><\/td><td><code>24.90<\/code> (Punkt statt Komma, kein €-Zeichen)<\/td><\/tr><tr><td>Lagerbestand<\/td><td><code>INT<\/code><\/td><td><code>17<\/code> (ohne Einheit, ohne Hochkommas)<\/td><\/tr><tr><td>Kaufdatum<\/td><td><code>DATE<\/code><\/td><td><code>'2025-03-14'<\/code> (immer JJJJ-MM-TT)<\/td><\/tr><tr><td>Letzte Inventur<\/td><td><code>DATETIME<\/code> (oder <code>TIMESTAMP<\/code>)<\/td><td><code>'2025-03-14 16:45:00'<\/code><\/td><\/tr><tr><td>Abholzeit<\/td><td><code>TIME<\/code><\/td><td><code>'09:30:00'<\/code><\/td><\/tr><tr><td>Im Sortiment<\/td><td><code>BOOLEAN<\/code> (in MySQL intern <code>TINYINT(1)<\/code>)<\/td><td><code>TRUE<\/code> / <code>FALSE<\/code>, gespeichert als <code>1<\/code> / <code>0<\/code><\/td><\/tr><tr><td>PLZ<\/td><td><code>CHAR(5)<\/code><\/td><td><code>'01067'<\/code> (als Text, mit führender Null)<\/td><\/tr><\/tbody><\/table><\/div><p>c) Als INT verliert die PLZ ihre führende Null: Aus 01067 wird 1067. Außerdem rechnet man nie mit Postleitzahlen, sie sind Kennungen und damit Text. FLOAT speichert Kommazahlen binär und damit oft nur ungefähr, 0,1 ist zum Beispiel nicht exakt darstellbar. Bei Geldbeträgen entstehen so Rundungsfehler in Summen. DECIMAL speichert die Nachkommastellen exakt.<\/p><p>d) <code>CHAR(5)<\/code> hat eine feste Länge, kürzere Werte werden mit Leerzeichen aufgefüllt. <code>VARCHAR(5)<\/code> speichert bis zu 5 Zeichen und belegt nur so viel Platz wie nötig. CHAR passt für Werte mit fester Länge wie PLZ oder Ländercodes, VARCHAR für alles mit wechselnder Länge.<\/p>"}, {"id": 26, "no": "G2", "level": "grund", "title": "Tabelle Zubehoer anlegen", "topics": ["CREATE TABLE", "PRIMARY KEY", "FOREIGN KEY"], "task": "<p>Elbrad verleiht ab sofort auch Zubehör. Lege die Tabelle <code>Zubehoer<\/code> an:<\/p><ul><li>ZubehoerID: ganze Zahl, Primärschlüssel<\/li><li>Bezeichnung: Text bis 100 Zeichen, Pflichtfeld<\/li><li>Preis: Geldbetrag bis 9.999,99 €<\/li><li>Kaufdatum: Datum<\/li><li>StationID: Station, an der das Teil liegt (Fremdschlüssel auf <code>Station<\/code>)<\/li><\/ul><p>Schreib Primär- und Fremdschlüssel als eigene Zeilen ans Ende der Spaltenliste: <code>PRIMARY KEY (…)<\/code> und <code>FOREIGN KEY (…) REFERENCES …<\/code>.<\/p>", "hint": "<p>Erst alle Spalten mit Datentyp, durch Kommas getrennt. Danach die beiden Schlüsselzeilen. Der Fremdschlüssel nennt in Klammern zuerst die eigene Spalte, nach REFERENCES die Zieltabelle und deren Primärschlüssel.<\/p>", "explain": "<p>Der Fremdschlüssel <code>StationID<\/code> hat denselben Datentyp wie der Primärschlüssel, auf den er zeigt. Die Datenbank lässt dann nur StationIDs zu, die es in <code>Station<\/code> wirklich gibt. Ohne NOT NULL ist eine Spalte optional, deshalb braucht nur <code>Bezeichnung<\/code> den Zusatz.<\/p>", "pitfall": "<p>Ein Komma nach der letzten Zeile vor der schließenden Klammer führt zum Syntaxfehler. Und bei <code>REFERENCES Station<\/code> fehlt ohne <code>(StationID)<\/code> die Zielspalte.<\/p>", "solution": "CREATE TABLE Zubehoer (\n    ZubehoerID  INT,\n    Bezeichnung VARCHAR(100) NOT NULL,\n    Preis       DECIMAL(6,2),\n    Kaufdatum   DATE,\n    StationID   INT,\n    PRIMARY KEY (ZubehoerID),\n    FOREIGN KEY (StationID) REFERENCES Station (StationID)\n);", "check": {"kind": "ddl", "asserts": [{"type": "table", "table": "Zubehoer", "exists": true, "msg": "Es wurde keine Tabelle namens Zubehoer angelegt."}, {"type": "type", "table": "Zubehoer", "col": "ZubehoerID", "re": "^INT(EGER)?$", "msg": "ZubehoerID ist eine ganze Zahl: INT."}, {"type": "type", "table": "Zubehoer", "col": "Bezeichnung", "re": "^(VAR)?CHAR\\s*\\(\\s*100\\s*\\)$", "msg": "Bezeichnung ist Text bis 100 Zeichen: VARCHAR(100)."}, {"type": "type", "table": "Zubehoer", "col": "Preis", "re": "^(DECIMAL|NUMERIC)\\s*\\(\\s*6\\s*,\\s*2\\s*\\)$", "msg": "Ein Geldbetrag bis 9.999,99 € passt genau in DECIMAL(6,2): 6 Stellen insgesamt, davon 2 nach dem Komma. FLOAT rechnet mit Rundungsfehlern."}, {"type": "type", "table": "Zubehoer", "col": "Kaufdatum", "re": "^DATE$", "msg": "Kaufdatum ist ein reines Datum ohne Uhrzeit: DATE."}, {"type": "type", "table": "Zubehoer", "col": "StationID", "re": "^INT(EGER)?$", "msg": "Der Fremdschlüssel StationID braucht denselben Datentyp wie Station.StationID: INT."}, {"type": "fk", "table": "Zubehoer", "col": "StationID", "ref": "Station", "msg": "Der Fremdschlüssel von StationID auf Station fehlt."}, {"type": "insert", "pre": [], "sql": "INSERT INTO Zubehoer (ZubehoerID, Bezeichnung, Preis, Kaufdatum, StationID) VALUES (1, 'Fahrradkorb', 24.90, '2025-04-01', 1)", "ok": true, "msg": "Ein gültiger Datensatz wird abgelehnt."}, {"type": "insert", "pre": [], "sql": "INSERT INTO Zubehoer (ZubehoerID, Bezeichnung, Preis, Kaufdatum, StationID) VALUES (2, 'Klingel', NULL, NULL, NULL)", "ok": true, "msg": "Ein Teil ohne Preis, Kaufdatum und Station wird abgelehnt. Diese Angaben sind laut Aufgabe optional."}, {"type": "insert", "pre": [], "sql": "INSERT INTO Zubehoer (ZubehoerID, Bezeichnung, Preis, Kaufdatum, StationID) VALUES (3, NULL, 9.90, '2025-04-01', 1)", "ok": false, "msg": "Ein Teil ohne Bezeichnung wird angenommen. Es fehlt NOT NULL."}, {"type": "insert", "pre": ["INSERT INTO Zubehoer (ZubehoerID, Bezeichnung, Preis, Kaufdatum, StationID) VALUES (1, 'Korb', 24.90, '2025-04-01', 1)"], "sql": "INSERT INTO Zubehoer (ZubehoerID, Bezeichnung, Preis, Kaufdatum, StationID) VALUES (1, 'Schloss', 19.90, '2025-04-02', 2)", "ok": false, "msg": "Zwei Teile mit derselben ZubehoerID werden angenommen. Der Primärschlüssel fehlt."}, {"type": "insert", "pre": [], "sql": "INSERT INTO Zubehoer (ZubehoerID, Bezeichnung, Preis, Kaufdatum, StationID) VALUES (4, 'Helm', 39.00, '2025-04-03', 99)", "ok": false, "msg": "Ein Teil an der nicht vorhandenen Station 99 wird angenommen. Der Fremdschlüssel greift nicht."}]}}, {"id": 27, "no": "G3", "level": "grund", "title": "Tabellen ändern und löschen", "topics": ["ALTER TABLE", "ADD COLUMN", "DROP COLUMN", "DROP TABLE"], "task": "<p>Die Tabelle <code>Zubehoer<\/code> aus G2 existiert bereits. Außerdem gibt es noch die alte Tabelle <code>Altgeraete<\/code>. Schreib die Anweisungen für diese Änderungen:<\/p><p>a) Füge in <code>Zubehoer<\/code> die Spalte <code>Farbe<\/code> hinzu (Text bis 30 Zeichen).<\/p><p>b) Entferne die Spalte <code>Kaufdatum<\/code>.<\/p><p>c) Manche Teile sind fest an einem Rad montiert. Füge die Spalte <code>FahrradID<\/code> hinzu und lege dafür einen Fremdschlüssel auf <code>Fahrrad<\/code> an.<\/p><p>d) Die Tabelle <code>Altgeraete<\/code> wird nicht mehr gebraucht. Lösche sie komplett.<\/p>", "hint": "<p>Alles in a) bis c) beginnt mit <code>ALTER TABLE Zubehoer<\/code>, danach folgt ADD COLUMN, DROP COLUMN oder ADD FOREIGN KEY. Bei c) muss die Spalte existieren, bevor ein Fremdschlüssel auf ihr angelegt werden kann.<\/p>", "explain": "<p>ALTER TABLE ändert die Struktur einer bestehenden Tabelle, die vorhandenen Daten bleiben erhalten. DROP TABLE entfernt die Tabelle samt Struktur und Daten. Im IHK-Belegsatz steht bei DROP COLUMN zusätzlich der Datentyp. MySQL und andere Systeme erwarten dort nur den Spaltennamen; hier wird beides akzeptiert.<\/p>", "pitfall": "<p><code>DELETE FROM Altgeraete<\/code> löscht nur die Zeilen, die leere Tabelle bleibt bestehen. Der Fremdschlüssel in c) scheitert, wenn die Spalte FahrradID noch nicht angelegt ist.<\/p>", "solution": "ALTER TABLE Zubehoer ADD COLUMN Farbe VARCHAR(30);\n\nALTER TABLE Zubehoer DROP COLUMN Kaufdatum;\n\nALTER TABLE Zubehoer ADD COLUMN FahrradID INT;\nALTER TABLE Zubehoer ADD FOREIGN KEY (FahrradID) REFERENCES Fahrrad (FahrradID);\n\nDROP TABLE Altgeraete;", "check": {"kind": "ddl", "setup": "CREATE TABLE Zubehoer (ZubehoerID INT, Bezeichnung VARCHAR(100) NOT NULL, Preis DECIMAL(6,2), Kaufdatum DATE, StationID INT, PRIMARY KEY (ZubehoerID), FOREIGN KEY (StationID) REFERENCES Station (StationID));\nINSERT INTO Zubehoer VALUES (1, 'Fahrradkorb', 24.90, '2025-04-01', 1), (2, 'Kindersitz', 89.00, '2025-05-12', 2);\nCREATE TABLE Altgeraete (GeraetID INT PRIMARY KEY, Bezeichnung VARCHAR(100));\nINSERT INTO Altgeraete VALUES (1, 'Kassenterminal alt');", "asserts": [{"type": "table", "table": "Zubehoer", "exists": true, "msg": "Die Tabelle Zubehoer gibt es nicht mehr. Gelöscht werden sollte nur Altgeraete."}, {"type": "column", "table": "Zubehoer", "col": "Farbe", "exists": true, "msg": "a) Die Spalte Farbe fehlt in Zubehoer."}, {"type": "type", "table": "Zubehoer", "col": "Farbe", "re": "^(VAR)?CHAR\\s*\\(\\s*30\\s*\\)$", "msg": "a) Farbe ist Text bis 30 Zeichen: VARCHAR(30)."}, {"type": "column", "table": "Zubehoer", "col": "Kaufdatum", "exists": false, "msg": "b) Die Spalte Kaufdatum ist noch vorhanden."}, {"type": "column", "table": "Zubehoer", "col": "FahrradID", "exists": true, "msg": "c) Die Spalte FahrradID fehlt in Zubehoer."}, {"type": "fk", "table": "Zubehoer", "col": "FahrradID", "ref": "Fahrrad", "msg": "c) Der Fremdschlüssel von FahrradID auf Fahrrad fehlt."}, {"type": "table", "table": "Altgeraete", "exists": false, "msg": "d) Die Tabelle Altgeraete gibt es noch. DELETE FROM leert sie nur, DROP TABLE löscht sie."}, {"type": "rows", "table": "Zubehoer", "count": 2, "msg": "Die zwei vorhandenen Zubehör-Datensätze sind verschwunden. ALTER TABLE soll die Daten erhalten."}]}}, {"id": 28, "no": "T1", "level": "txn", "title": "Warum eine Transaktion?", "topics": ["ACID", "Atomarität"], "task": "<p>Bei der Rückgabe eines Rads passieren drei Dinge:<\/p><ul><li>(1) Die Ausleihe bekommt Dauer und Zielstation.<\/li><li>(2) Eine Rechnung wird angelegt.<\/li><li>(3) Das Fahrrad wird der Zielstation zugeordnet.<\/li><\/ul><p>a) Warum sollten diese drei Änderungen in einer gemeinsamen Transaktion stehen?<\/p><p>b) Nach Schritt (2) stürzt der Datenbankserver ab. Was steht nach dem Neustart in der Datenbank, wenn eine Transaktion verwendet wurde? Und was ohne?<\/p><p>c) Wofür stehen die vier Buchstaben in ACID, und was bedeutet jede Eigenschaft in diesem Beispiel?<\/p>", "hint": "<p>Überlege, in welchem Zustand die Daten wären, wenn nur ein Teil der Schritte ausgeführt wurde. Eine Transaktion kennt nur zwei Ausgänge: COMMIT oder ROLLBACK.<\/p>", "explain": "<p>Eine Transaktion fasst mehrere Anweisungen zu einer logischen Einheit zusammen. Sie endet entweder mit COMMIT (alles wird dauerhaft gespeichert) oder mit ROLLBACK (alles wird verworfen).<\/p>", "pitfall": "<p>Konsistenz wird oft mit „die Daten sind richtig“ gleichgesetzt. Gemeint ist, dass die Datenbank vor und nach der Transaktion alle definierten Regeln erfüllt. Fachlich falsche Werte verhindert sie nicht.<\/p>", "solution": null, "check": {"kind": "none"}, "answer": "<p>a) Die drei Änderungen gehören fachlich zusammen. Entweder passieren alle oder keine. Sonst entstehen widersprüchliche Daten, zum Beispiel eine abgeschlossene Ausleihe ohne Rechnung oder ein Rad, das laut Datenbank noch an der alten Station steht.<\/p><p>b) Mit Transaktion: Es gab noch kein COMMIT. Beim Neustart werden die Schritte (1) und (2) zurückgerollt, die Datenbank steht wie vor der Rückgabe, und die Rückgabe kann einfach wiederholt werden. Ohne Transaktion (Autocommit): Die Schritte (1) und (2) sind dauerhaft gespeichert, Schritt (3) fehlt. Das Rad ist falsch zugeordnet, und niemand bemerkt es.<\/p><p>c)<\/p><div class=\"tw\"><table><thead><tr><th>Buchstabe<\/th><th>Eigenschaft<\/th><th>Im Beispiel<\/th><\/tr><\/thead><tbody><tr><td>A<\/td><td>Atomicity (Atomarität)<\/td><td>Alle drei Schritte oder keiner.<\/td><\/tr><tr><td>C<\/td><td>Consistency (Konsistenz)<\/td><td>Nach der Transaktion stimmen alle Regeln wieder, etwa: jede abgeschlossene Ausleihe hat eine Rechnung, alle Fremdschlüssel sind gültig.<\/td><\/tr><tr><td>I<\/td><td>Isolation<\/td><td>Andere Nutzer sehen die halb fertige Rückgabe nicht, etwa eine Umsatzauswertung, die gleichzeitig läuft.<\/td><\/tr><tr><td>D<\/td><td>Durability (Dauerhaftigkeit)<\/td><td>Nach dem COMMIT bleiben die Änderungen erhalten, auch bei einem Absturz.<\/td><\/tr><\/tbody><\/table><\/div>"}, {"id": 29, "no": "T2", "level": "txn", "title": "Rückgabe als Transaktion", "topics": ["START TRANSACTION", "COMMIT"], "task": "<p>Lukas Hansen gibt sein E-Bike zurück (Ausleihe 20, Fahrrad 3). Er war 95 Minuten unterwegs und gibt das Rad an Station 1 ab. Die Rechnung beträgt 10,29 €, sie ist noch nicht bezahlt und hat das heutige Datum.<\/p><p>Schreib die drei Änderungen aus T1 als eine Transaktion.<\/p>", "hint": "<p>Transaktion starten, zwei UPDATEs und ein INSERT, Transaktion abschließen. Die RechnungsNr wird automatisch vergeben.<\/p>", "explain": "<p><code>START TRANSACTION<\/code> (in vielen Systemen auch <code>BEGIN<\/code>) beendet für diese Anweisungen den Autocommit-Modus. Erst <code>COMMIT<\/code> macht alle drei Änderungen gemeinsam dauerhaft. Tritt vorher ein Fehler auf, kann die Anwendung mit <code>ROLLBACK<\/code> alles verwerfen.<\/p>", "pitfall": "<p>Ohne COMMIT am Ende bleibt die Transaktion offen. Andere Nutzer sehen die Änderungen nicht, und beim Abbruch der Verbindung werden sie verworfen.<\/p>", "solution": "START TRANSACTION;\n\nUPDATE Ausleihe\nSET DauerMin = 95, ZielStationID = 1\nWHERE AusleiheID = 20;\n\nINSERT INTO Rechnung (AusleiheID, Betrag, Bezahlt, Rechnungsdatum)\nVALUES (20, 10.29, 0, CURRENT_DATE);\n\nUPDATE Fahrrad\nSET StationID = 1\nWHERE FahrradID = 3;\n\nCOMMIT;", "check": {"kind": "dml", "ignore": {"Rechnung": ["RechnungsNr", "Rechnungsdatum"]}, "require": [["\\b(start\\s+transaction|begin)\\b", "Die Änderungen sollen als eine Transaktion laufen. Beginne mit START TRANSACTION (oder BEGIN)."], ["\\bcommit\\b", "Am Ende fehlt COMMIT. Ohne COMMIT werden die Änderungen nicht dauerhaft gespeichert."]]}}, {"id": 30, "no": "T3", "level": "txn", "title": "Probeweise ändern, dann verwerfen", "topics": ["ROLLBACK"], "task": "<p>Ein Mitarbeiter möchte sehen, wie die Preisliste aussähe, wenn alle Stundenpreise um 50 % steigen. Gespeichert werden soll die Änderung aber nicht.<\/p><p>Schreib eine Transaktion, die die Preise erhöht, die neuen Preise mit FahrradID, Modell und Stundenpreis anzeigt und die Änderung danach zurücknimmt.<\/p>", "hint": "<p>Innerhalb der offenen Transaktion sieht man die eigene Änderung schon. Am Ende entscheidet ein einziges Schlüsselwort, ob sie bleibt oder verworfen wird.<\/p>", "explain": "<p>Die SELECT-Abfrage zeigt innerhalb der Transaktion bereits die erhöhten Preise. <code>ROLLBACK<\/code> stellt danach den Zustand vom Beginn der Transaktion wieder her, als hätte es das UPDATE nie gegeben.<\/p>", "pitfall": "<p>Mit COMMIT statt ROLLBACK sind die neuen Preise dauerhaft gespeichert. Ein späteres ROLLBACK hilft dann nicht mehr.<\/p>", "solution": "START TRANSACTION;\n\nUPDATE Fahrrad\nSET Stundenpreis = Stundenpreis * 1.5;\n\nSELECT FahrradID, Modell, Stundenpreis\nFROM Fahrrad;\n\nROLLBACK;", "check": {"kind": "dml", "allowUnchanged": true, "compareLast": true, "require": [["\\b(start\\s+transaction|begin)\\b", "Die Änderung soll in einer Transaktion laufen. Beginne mit START TRANSACTION (oder BEGIN)."], ["\\brollback\\b", "Am Ende fehlt ROLLBACK. Nur damit wird die Preiserhöhung verworfen."], ["\\bupdate\\b", "Die Preise sollen innerhalb der Transaktion wirklich per UPDATE erhöht werden."]]}}, {"id": 31, "no": "T4", "level": "txn", "title": "Autocommit und gleichzeitige Zugriffe", "topics": ["Autocommit", "Isolation", "Lost Update"], "task": "<p>a) MySQL arbeitet standardmäßig im Autocommit-Modus. Was bedeutet das für ein einzelnes UPDATE ohne START TRANSACTION?<\/p><p>b) Kann man ein UPDATE, das bereits mit COMMIT abgeschlossen ist, mit ROLLBACK zurücknehmen?<\/p><p>c) Zwei Mitarbeiter lesen gleichzeitig den Lagerbestand eines Ersatzteils: 10 Stück. Beide verkaufen ein Teil und schreiben jeweils den Wert 9 zurück. Wie heißt dieses Problem, welche ACID-Eigenschaft soll es verhindern, und wie lässt es sich in SQL vermeiden?<\/p>", "hint": "<p>Zu c): Rechne nach, welcher Bestand richtig wäre und welcher am Ende gespeichert ist. Überlege dann, ob die Rechnung besser in der Anwendung oder in der Datenbank stattfindet.<\/p>", "explain": "<p>Autocommit ist bequem für einzelne Anweisungen. Sobald mehrere Änderungen zusammengehören, braucht es eine ausdrückliche Transaktion.<\/p>", "pitfall": "<p>Viele halten ROLLBACK für eine allgemeine Rückgängig-Funktion. Es nimmt aber nur Änderungen zurück, die noch nicht mit COMMIT bestätigt wurden.<\/p>", "solution": null, "check": {"kind": "none"}, "answer": "<p>a) Jede einzelne Anweisung ist automatisch eine eigene Transaktion und wird sofort dauerhaft gespeichert, als stünde danach ein COMMIT.<\/p><p>b) Nein. ROLLBACK wirkt nur auf die gerade offene Transaktion. Nach dem COMMIT lässt sich eine Änderung nur noch durch eine neue, entgegengesetzte Anweisung korrigieren.<\/p><p>c) Das ist ein <strong>Lost Update<\/strong> (verlorene Änderung): Richtig wäre ein Bestand von 8, gespeichert ist 9, ein Verkauf ist verloren. Verhindern soll das die <strong>Isolation<\/strong>. In SQL vermeidest du es, indem die Datenbank selbst rechnet, statt einen vorher gelesenen Wert zurückzuschreiben: <code>UPDATE Ersatzteil SET Bestand = Bestand - 1 WHERE TeilID = 7;<\/code> Alternativ sperrt <code>SELECT … FOR UPDATE<\/code> innerhalb einer Transaktion die Zeile, bis die eigene Änderung abgeschlossen ist.<\/p>"}], "schema": [{"name": "Station", "cols": [["StationID", "INT", "pk", null], ["Bezeichnung", "VARCHAR(50)", "", null], ["Ort", "VARCHAR(50)", "", null]]}, {"name": "Kunde", "cols": [["KundenID", "INT", "pk", null], ["Vorname", "VARCHAR(50)", "", null], ["Nachname", "VARCHAR(50)", "", null], ["Ort", "VARCHAR(50)", "", null], ["Geburtsdatum", "DATE", "", null], ["RegistriertAm", "DATE", "", null]]}, {"name": "Fahrrad", "cols": [["FahrradID", "INT", "pk", null], ["Typ", "VARCHAR(20)", "", "'E-Bike', 'Trekking', 'Lastenrad'"], ["Modell", "VARCHAR(50)", "", null], ["StationID", "INT", "fk", "Station"], ["Anschaffungsdatum", "DATE", "", null], ["Stundenpreis", "DECIMAL(5,2)", "", null]]}, {"name": "Ausleihe", "cols": [["AusleiheID", "INT", "pk", null], ["KundenID", "INT", "fk", "Kunde"], ["FahrradID", "INT", "fk", "Fahrrad"], ["StartStationID", "INT", "fk", "Station"], ["ZielStationID", "INT", "fk", "Station · NULL, solange die Fahrt läuft"], ["Beginn", "DATETIME", "", null], ["DauerMin", "INT", "", "NULL, solange die Fahrt läuft"]]}, {"name": "Rechnung", "cols": [["RechnungsNr", "INT", "pk", "wird automatisch vergeben"], ["AusleiheID", "INT", "fk", "Ausleihe"], ["Betrag", "DECIMAL(8,2)", "", null], ["Bezahlt", "TINYINT", "", "0 = offen, 1 = bezahlt"], ["Rechnungsdatum", "DATE", "", null]]}, {"name": "Wartung", "cols": [["WartungID", "INT", "pk", null], ["FahrradID", "INT", "fk", "Fahrrad"], ["Datum", "DATE", "", null], ["Art", "VARCHAR(50)", "", null], ["Kosten", "DECIMAL(8,2)", "", null]]}, {"name": "Mitarbeiter", "cols": [["MitarbeiterID", "INT", "pk", null], ["Name", "VARCHAR(80)", "", null], ["StationID", "INT", "fk", "Station"], ["VorgesetzterID", "INT", "fk", "Mitarbeiter · NULL = kein Vorgesetzter"], ["Gehalt", "DECIMAL(8,2)", "", null]]}], "relations": ["Kunde 1 : n Ausleihe", "Fahrrad 1 : n Ausleihe", "Station 1 : n Ausleihe (zweimal: Start und Ziel)", "Station 1 : n Fahrrad", "Ausleihe 1 : c Rechnung", "Fahrrad 1 : n Wartung", "Station 1 : n Mitarbeiter", "Mitarbeiter 1 : n Mitarbeiter (Vorgesetzter)"], "seeds": {"A": "CREATE TABLE Station(StationID INT PRIMARY KEY, Bezeichnung VARCHAR(50) COLLATE NOCASE, Ort VARCHAR(50) COLLATE NOCASE);\nCREATE TABLE Kunde(KundenID INT PRIMARY KEY, Vorname VARCHAR(50) COLLATE NOCASE, Nachname VARCHAR(50) COLLATE NOCASE, Ort VARCHAR(50) COLLATE NOCASE, Geburtsdatum DATE, RegistriertAm DATE);\nCREATE TABLE Fahrrad(FahrradID INT PRIMARY KEY, Typ VARCHAR(20) COLLATE NOCASE, Modell VARCHAR(50) COLLATE NOCASE, StationID INT REFERENCES Station(StationID), Anschaffungsdatum DATE, Stundenpreis DECIMAL(5,2));\nCREATE TABLE Ausleihe(AusleiheID INT PRIMARY KEY, KundenID INT REFERENCES Kunde(KundenID), FahrradID INT REFERENCES Fahrrad(FahrradID), StartStationID INT REFERENCES Station(StationID), ZielStationID INT REFERENCES Station(StationID), Beginn DATETIME, DauerMin INT);\nCREATE TABLE Rechnung(RechnungsNr INTEGER PRIMARY KEY AUTOINCREMENT, AusleiheID INT REFERENCES Ausleihe(AusleiheID), Betrag DECIMAL(8,2), Bezahlt TINYINT, Rechnungsdatum DATE);\nCREATE TABLE Wartung(WartungID INT PRIMARY KEY, FahrradID INT REFERENCES Fahrrad(FahrradID), Datum DATE, Art VARCHAR(50) COLLATE NOCASE, Kosten DECIMAL(8,2));\nCREATE TABLE Mitarbeiter(MitarbeiterID INT PRIMARY KEY, Name VARCHAR(80) COLLATE NOCASE, StationID INT REFERENCES Station(StationID), VorgesetzterID INT REFERENCES Mitarbeiter(MitarbeiterID), Gehalt DECIMAL(8,2));\nINSERT INTO Station VALUES(1,'Bahnhof Elmshorn','Elmshorn');\nINSERT INTO Station VALUES(2,'Altona','Hamburg');\nINSERT INTO Station VALUES(3,'Uni Campus','Hamburg');\nINSERT INTO Station VALUES(4,'Zentrallager','Pinneberg');\nINSERT INTO Kunde VALUES(1,'Anna','Petersen','Elmshorn','1998-02-11','2023-01-15');\nINSERT INTO Kunde VALUES(2,'Jonas','Meier','Hamburg','1995-07-30','2023-03-02');\nINSERT INTO Kunde VALUES(3,'Fatma','Yilmaz','Hamburg','2000-11-05','2023-06-20');\nINSERT INTO Kunde VALUES(4,'Lukas','Hansen','Pinneberg','1989-04-22','2024-01-08');\nINSERT INTO Kunde VALUES(5,'Mia','Schulz','Elmshorn','2002-09-14','2024-05-19');\nINSERT INTO Kunde VALUES(6,'Tim','Becker','Hamburg','1993-12-01','2024-08-30');\nINSERT INTO Kunde VALUES(7,'Sophie','Lange','Uetersen','1997-03-27','2025-02-11');\nINSERT INTO Kunde VALUES(8,'Ole','Jensen','Hamburg','1985-06-09','2025-07-01');\nINSERT INTO Fahrrad VALUES(1,'E-Bike','Volt City',1,'2022-03-10',5.5);\nINSERT INTO Fahrrad VALUES(2,'E-Bike','Volt City',2,'2022-05-02',5.5);\nINSERT INTO Fahrrad VALUES(3,'E-Bike','Volt Tour',3,'2023-04-01',6.5);\nINSERT INTO Fahrrad VALUES(4,'E-Bike','Pendler E5',2,'2021-08-15',4.5);\nINSERT INTO Fahrrad VALUES(5,'E-Bike','Pendler E5',1,'2024-02-20',4.8);\nINSERT INTO Fahrrad VALUES(6,'Trekking','Nordkap 28',1,'2020-06-01',2.5);\nINSERT INTO Fahrrad VALUES(7,'Trekking','Nordkap 28',2,'2021-07-01',2.5);\nINSERT INTO Fahrrad VALUES(8,'Trekking','Elbe 7',3,'2023-09-12',3.0);\nINSERT INTO Fahrrad VALUES(9,'Trekking','Elbe 7',3,'2024-05-05',3.2);\nINSERT INTO Fahrrad VALUES(10,'Lastenrad','Cargo Duo',2,'2022-11-11',7.0);\nINSERT INTO Fahrrad VALUES(11,'Lastenrad','Cargo Duo',1,'2023-03-03',7.5);\nINSERT INTO Ausleihe VALUES(1,1,6,1,1,'2024-09-03 08:10:00',45);\nINSERT INTO Ausleihe VALUES(2,2,4,2,3,'2024-11-20 17:00:00',30);\nINSERT INTO Ausleihe VALUES(3,1,1,1,2,'2025-03-14 09:00:00',120);\nINSERT INTO Ausleihe VALUES(4,1,10,2,2,'2025-04-05 10:30:00',180);\nINSERT INTO Ausleihe VALUES(5,3,8,3,3,'2025-05-02 12:00:00',60);\nINSERT INTO Ausleihe VALUES(6,2,2,2,1,'2025-06-01 07:45:00',50);\nINSERT INTO Ausleihe VALUES(7,1,3,3,3,'2025-06-18 16:20:00',90);\nINSERT INTO Ausleihe VALUES(8,5,5,1,1,'2025-06-30 18:15:00',75);\nINSERT INTO Ausleihe VALUES(9,2,11,1,2,'2025-07-12 11:00:00',240);\nINSERT INTO Ausleihe VALUES(10,3,3,3,3,'2025-07-20 14:00:00',35);\nINSERT INTO Ausleihe VALUES(11,4,7,2,2,'2025-08-02 09:30:00',100);\nINSERT INTO Ausleihe VALUES(12,5,9,3,1,'2025-08-15 13:00:00',150);\nINSERT INTO Ausleihe VALUES(13,2,1,2,2,'2025-09-09 08:00:00',25);\nINSERT INTO Ausleihe VALUES(14,1,9,1,3,'2025-10-01 15:00:00',65);\nINSERT INTO Ausleihe VALUES(15,6,10,2,1,'2025-11-11 10:00:00',210);\nINSERT INTO Ausleihe VALUES(16,3,4,2,2,'2025-12-03 17:30:00',40);\nINSERT INTO Ausleihe VALUES(17,5,6,1,1,'2026-02-14 12:00:00',30);\nINSERT INTO Ausleihe VALUES(18,2,5,1,3,'2026-05-20 08:30:00',55);\nINSERT INTO Ausleihe VALUES(19,1,2,1,1,'2026-07-04 09:00:00',80);\nINSERT INTO Ausleihe VALUES(20,4,3,3,NULL,'2026-10-05 08:15:00',NULL);\nINSERT INTO Ausleihe VALUES(21,6,8,3,NULL,'2026-10-05 11:40:00',NULL);\nINSERT INTO Ausleihe VALUES(22,3,11,1,1,'2026-08-21 10:00:00',160);\nINSERT INTO Ausleihe VALUES(23,4,11,1,1,'2025-09-20 09:00:00',300);\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(1,1.88,1,'2024-09-03');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(2,2.25,0,'2024-11-20');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(3,11.0,1,'2025-03-14');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(4,21.0,1,'2025-04-05');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(5,3.0,1,'2025-05-02');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(6,4.58,1,'2025-06-01');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(7,9.75,1,'2025-06-18');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(8,6.0,1,'2025-06-30');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(9,30.0,1,'2025-07-12');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(10,3.79,1,'2025-07-20');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(11,4.17,1,'2025-08-02');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(12,8.0,0,'2025-08-15');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(13,2.29,1,'2025-09-09');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(14,3.47,1,'2025-10-01');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(15,24.5,0,'2025-11-11');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(16,3.0,1,'2025-12-03');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(17,1.25,0,'2026-02-14');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(18,4.4,0,'2026-05-20');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(23,37.5,1,'2025-09-20');\nINSERT INTO Wartung VALUES(1,1,'2023-05-10','Inspektion',45);\nINSERT INTO Wartung VALUES(2,1,'2024-05-12','Inspektion',45);\nINSERT INTO Wartung VALUES(3,1,'2025-04-20','Akkutausch',320);\nINSERT INTO Wartung VALUES(4,1,'2025-09-01','Bremsen',60);\nINSERT INTO Wartung VALUES(5,4,'2024-02-02','Inspektion',45);\nINSERT INTO Wartung VALUES(6,10,'2025-01-15','Kette',35);\nINSERT INTO Wartung VALUES(7,10,'2025-06-10','Inspektion',55);\nINSERT INTO Wartung VALUES(8,6,'2022-08-08','Reifen',30);\nINSERT INTO Wartung VALUES(9,3,'2025-03-03','Display',120);\nINSERT INTO Wartung VALUES(10,11,'2025-07-30','Inspektion',55);\nINSERT INTO Wartung VALUES(11,1,'2026-03-01','Inspektion',50);\nINSERT INTO Wartung VALUES(12,10,'2026-04-04','Bremsen',70);\nINSERT INTO Wartung VALUES(13,10,'2026-06-06','Reifen',40);\nINSERT INTO Wartung VALUES(14,3,'2025-08-08','Bremsen',60);\nINSERT INTO Wartung VALUES(15,3,'2026-01-10','Inspektion',50);\nINSERT INTO Wartung VALUES(16,3,'2026-05-05','Reifen',35);\nINSERT INTO Mitarbeiter VALUES(1,'Kerstin Vogt',1,NULL,4200);\nINSERT INTO Mitarbeiter VALUES(2,'Malte Krüger',1,1,2900);\nINSERT INTO Mitarbeiter VALUES(3,'Svenja Ahrens',2,1,3600);\nINSERT INTO Mitarbeiter VALUES(4,'Deniz Kaya',2,3,2700);\nINSERT INTO Mitarbeiter VALUES(5,'Paul Roth',2,3,3100);\nINSERT INTO Mitarbeiter VALUES(6,'Nele Hoffmann',3,1,3300);\nINSERT INTO Mitarbeiter VALUES(7,'Erik Lorenz',3,6,2600);\nINSERT INTO Mitarbeiter VALUES(8,'Jana Wulf',4,1,2800);\n", "B": "CREATE TABLE Station(StationID INT PRIMARY KEY, Bezeichnung VARCHAR(50) COLLATE NOCASE, Ort VARCHAR(50) COLLATE NOCASE);\nCREATE TABLE Kunde(KundenID INT PRIMARY KEY, Vorname VARCHAR(50) COLLATE NOCASE, Nachname VARCHAR(50) COLLATE NOCASE, Ort VARCHAR(50) COLLATE NOCASE, Geburtsdatum DATE, RegistriertAm DATE);\nCREATE TABLE Fahrrad(FahrradID INT PRIMARY KEY, Typ VARCHAR(20) COLLATE NOCASE, Modell VARCHAR(50) COLLATE NOCASE, StationID INT REFERENCES Station(StationID), Anschaffungsdatum DATE, Stundenpreis DECIMAL(5,2));\nCREATE TABLE Ausleihe(AusleiheID INT PRIMARY KEY, KundenID INT REFERENCES Kunde(KundenID), FahrradID INT REFERENCES Fahrrad(FahrradID), StartStationID INT REFERENCES Station(StationID), ZielStationID INT REFERENCES Station(StationID), Beginn DATETIME, DauerMin INT);\nCREATE TABLE Rechnung(RechnungsNr INTEGER PRIMARY KEY AUTOINCREMENT, AusleiheID INT REFERENCES Ausleihe(AusleiheID), Betrag DECIMAL(8,2), Bezahlt TINYINT, Rechnungsdatum DATE);\nCREATE TABLE Wartung(WartungID INT PRIMARY KEY, FahrradID INT REFERENCES Fahrrad(FahrradID), Datum DATE, Art VARCHAR(50) COLLATE NOCASE, Kosten DECIMAL(8,2));\nCREATE TABLE Mitarbeiter(MitarbeiterID INT PRIMARY KEY, Name VARCHAR(80) COLLATE NOCASE, StationID INT REFERENCES Station(StationID), VorgesetzterID INT REFERENCES Mitarbeiter(MitarbeiterID), Gehalt DECIMAL(8,2));\nINSERT INTO Station VALUES(1,'Bahnhof Elmshorn','Elmshorn');\nINSERT INTO Station VALUES(2,'Altona','Hamburg');\nINSERT INTO Station VALUES(3,'Uni Campus','Hamburg');\nINSERT INTO Station VALUES(4,'Zentrallager','Pinneberg');\nINSERT INTO Kunde VALUES(1,'Anna','Petersen','Elmshorn','1998-02-11','2023-01-15');\nINSERT INTO Kunde VALUES(2,'Jonas','Meier','Hamburg','1995-07-30','2023-03-02');\nINSERT INTO Kunde VALUES(3,'Fatma','Yilmaz','Hamburg','2000-11-05','2023-06-20');\nINSERT INTO Kunde VALUES(4,'Lukas','Hansen','Pinneberg','1989-04-22','2024-01-08');\nINSERT INTO Kunde VALUES(5,'Mia','Schulz','Elmshorn','2002-09-14','2024-05-19');\nINSERT INTO Kunde VALUES(6,'Tim','Becker','Hamburg','1993-12-01','2024-08-30');\nINSERT INTO Kunde VALUES(7,'Sophie','Lange','Uetersen','1997-03-27','2025-02-11');\nINSERT INTO Kunde VALUES(8,'Ole','Jensen','Hamburg','1985-06-09','2025-07-01');\nINSERT INTO Kunde VALUES(9,'Petra','Meier','Hamburg','1990-01-01','2025-03-03');\nINSERT INTO Fahrrad VALUES(1,'E-Bike','Volt City',1,'2022-03-10',5.5);\nINSERT INTO Fahrrad VALUES(2,'E-Bike','Volt City',2,'2022-05-02',5.5);\nINSERT INTO Fahrrad VALUES(3,'E-Bike','Volt Tour',3,'2023-04-01',6.5);\nINSERT INTO Fahrrad VALUES(4,'E-Bike','Pendler E5',2,'2021-08-15',4.5);\nINSERT INTO Fahrrad VALUES(5,'E-Bike','Pendler E5',1,'2024-02-20',4.8);\nINSERT INTO Fahrrad VALUES(6,'Trekking','Nordkap 28',1,'2020-06-01',2.5);\nINSERT INTO Fahrrad VALUES(7,'Trekking','Nordkap 28',2,'2021-07-01',2.5);\nINSERT INTO Fahrrad VALUES(8,'Trekking','Elbe 7',3,'2023-09-12',3.0);\nINSERT INTO Fahrrad VALUES(9,'Trekking','Elbe 7',3,'2024-05-05',3.2);\nINSERT INTO Fahrrad VALUES(10,'Lastenrad','Cargo Duo',2,'2022-11-11',7.0);\nINSERT INTO Fahrrad VALUES(11,'Lastenrad','Cargo Duo',1,'2023-03-03',7.5);\nINSERT INTO Fahrrad VALUES(12,'E-Bike','Volt City',1,'2022-12-31',6.0);\nINSERT INTO Fahrrad VALUES(13,'E-Bike','Pendler E5',2,'2023-01-01',5.0);\nINSERT INTO Fahrrad VALUES(14,'Gravel','Kies 1',3,'2025-03-01',4.0);\nINSERT INTO Ausleihe VALUES(1,1,6,1,1,'2024-09-03 08:10:00',45);\nINSERT INTO Ausleihe VALUES(2,2,4,2,3,'2024-11-20 17:00:00',30);\nINSERT INTO Ausleihe VALUES(3,1,1,1,2,'2025-03-14 09:00:00',120);\nINSERT INTO Ausleihe VALUES(4,1,10,2,2,'2025-04-05 10:30:00',180);\nINSERT INTO Ausleihe VALUES(5,3,8,3,3,'2025-05-02 12:00:00',60);\nINSERT INTO Ausleihe VALUES(6,2,2,2,1,'2025-06-01 07:45:00',50);\nINSERT INTO Ausleihe VALUES(7,1,3,3,3,'2025-06-18 16:20:00',90);\nINSERT INTO Ausleihe VALUES(8,5,5,1,1,'2025-06-30 18:15:00',75);\nINSERT INTO Ausleihe VALUES(9,2,11,1,2,'2025-07-12 11:00:00',240);\nINSERT INTO Ausleihe VALUES(10,3,3,3,3,'2025-07-20 14:00:00',35);\nINSERT INTO Ausleihe VALUES(11,4,7,2,2,'2025-08-02 09:30:00',100);\nINSERT INTO Ausleihe VALUES(12,5,9,3,1,'2025-08-15 13:00:00',150);\nINSERT INTO Ausleihe VALUES(13,2,1,2,2,'2025-09-09 08:00:00',25);\nINSERT INTO Ausleihe VALUES(14,1,9,1,3,'2025-10-01 15:00:00',65);\nINSERT INTO Ausleihe VALUES(15,6,10,2,1,'2025-11-11 10:00:00',210);\nINSERT INTO Ausleihe VALUES(16,3,4,2,2,'2025-12-03 17:30:00',40);\nINSERT INTO Ausleihe VALUES(17,5,6,1,1,'2026-02-14 12:00:00',30);\nINSERT INTO Ausleihe VALUES(18,2,5,1,3,'2026-05-20 08:30:00',55);\nINSERT INTO Ausleihe VALUES(19,1,2,1,1,'2026-07-04 09:00:00',80);\nINSERT INTO Ausleihe VALUES(20,4,3,3,NULL,'2026-10-05 08:15:00',NULL);\nINSERT INTO Ausleihe VALUES(21,6,8,3,NULL,'2026-10-05 11:40:00',NULL);\nINSERT INTO Ausleihe VALUES(22,3,11,1,1,'2026-08-21 10:00:00',160);\nINSERT INTO Ausleihe VALUES(23,4,11,1,1,'2025-09-20 09:00:00',300);\nINSERT INTO Ausleihe VALUES(24,9,7,2,2,'2025-10-10 10:00:00',60);\nINSERT INTO Ausleihe VALUES(25,5,1,1,1,'2025-11-01 09:00:00',30);\nINSERT INTO Ausleihe VALUES(26,8,12,1,1,'2025-12-12 12:00:00',45);\nINSERT INTO Ausleihe VALUES(27,3,8,3,3,'2025-06-30 23:59:00',20);\nINSERT INTO Ausleihe VALUES(28,6,9,3,3,'2025-07-01 00:00:00',15);\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(1,1.88,1,'2024-09-03');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(2,2.25,0,'2024-11-20');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(3,11.0,1,'2025-03-14');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(4,21.0,1,'2025-04-05');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(5,3.0,1,'2025-05-02');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(6,4.58,1,'2025-06-01');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(7,9.75,1,'2025-06-18');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(8,6.0,1,'2025-06-30');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(9,30.0,1,'2025-07-12');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(10,3.79,1,'2025-07-20');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(11,4.17,1,'2025-08-02');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(12,8.0,0,'2025-08-15');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(13,2.29,1,'2025-09-09');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(14,3.47,1,'2025-10-01');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(15,24.5,0,'2025-11-11');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(16,3.0,1,'2025-12-03');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(17,1.25,0,'2026-02-14');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(18,4.4,0,'2026-05-20');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(23,37.5,1,'2025-09-20');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(24,2.5,0,'2025-10-10');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(25,2.75,1,'2025-11-01');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(27,1.0,1,'2025-06-30');\nINSERT INTO Rechnung(AusleiheID,Betrag,Bezahlt,Rechnungsdatum) VALUES(28,0.8,1,'2025-07-01');\nINSERT INTO Wartung VALUES(1,1,'2023-05-10','Inspektion',45);\nINSERT INTO Wartung VALUES(2,1,'2024-05-12','Inspektion',45);\nINSERT INTO Wartung VALUES(3,1,'2025-04-20','Akkutausch',320);\nINSERT INTO Wartung VALUES(4,1,'2025-09-01','Bremsen',60);\nINSERT INTO Wartung VALUES(5,4,'2024-02-02','Inspektion',45);\nINSERT INTO Wartung VALUES(6,10,'2025-01-15','Kette',35);\nINSERT INTO Wartung VALUES(7,10,'2025-06-10','Inspektion',55);\nINSERT INTO Wartung VALUES(8,6,'2022-08-08','Reifen',30);\nINSERT INTO Wartung VALUES(9,3,'2025-03-03','Display',120);\nINSERT INTO Wartung VALUES(10,11,'2025-07-30','Inspektion',55);\nINSERT INTO Wartung VALUES(11,1,'2026-03-01','Inspektion',50);\nINSERT INTO Wartung VALUES(12,10,'2026-04-04','Bremsen',70);\nINSERT INTO Wartung VALUES(13,10,'2026-06-06','Reifen',40);\nINSERT INTO Wartung VALUES(14,3,'2025-08-08','Bremsen',60);\nINSERT INTO Wartung VALUES(15,3,'2026-01-10','Inspektion',50);\nINSERT INTO Wartung VALUES(16,3,'2026-05-05','Reifen',35);\nINSERT INTO Wartung VALUES(17,3,'2026-07-07','Motor',255);\nINSERT INTO Mitarbeiter VALUES(1,'Kerstin Vogt',1,NULL,4200);\nINSERT INTO Mitarbeiter VALUES(2,'Malte Krüger',1,1,2900);\nINSERT INTO Mitarbeiter VALUES(3,'Svenja Ahrens',2,1,3600);\nINSERT INTO Mitarbeiter VALUES(4,'Deniz Kaya',2,3,2700);\nINSERT INTO Mitarbeiter VALUES(5,'Paul Roth',2,3,3100);\nINSERT INTO Mitarbeiter VALUES(6,'Nele Hoffmann',3,1,3300);\nINSERT INTO Mitarbeiter VALUES(7,'Erik Lorenz',3,6,2600);\nINSERT INTO Mitarbeiter VALUES(8,'Jana Wulf',4,1,2800);\n", "tables": ["Station", "Kunde", "Fahrrad", "Ausleihe", "Rechnung", "Wartung", "Mitarbeiter"]}}</script>
+<script>
+/* Prüf-Engine für den AP2 SQL-Trainer.
+   Führt die Eingabe in SQLite (sql.js) gegen zwei Testdatensätze aus und vergleicht
+   das Ergebnis inhaltlich mit der Musterlösung: Aliasnamen, Spaltenreihenfolge,
+   Groß-/Kleinschreibung, Semikolons und kleine Rundungsunterschiede spielen keine Rolle. */
+(function (root) {
+  'use strict';
+
+  var AGG = { COUNT: 1, SUM: 1, AVG: 1, MIN: 1, MAX: 1, GROUP_CONCAT: 1, TOTAL: 1 };
+  var NC = {};
+  ('SELECT FROM WHERE AND OR NOT IN IS NULL AS ON CASE WHEN THEN ELSE END LIKE BETWEEN EXISTS DISTINCT ALL ANY SOME ' +
+   'TRUE FALSE CURRENT_DATE CURRENT_TIMESTAMP CURRENT_TIME CAST INT INTEGER DECIMAL VARCHAR DATE DATETIME REAL TEXT ' +
+   'ASC DESC ESCAPE COLLATE NOCASE INTERVAL').split(' ').forEach(function (k) { NC[k] = 1; });
+
+  /* ---------- Tokenizer (für Lint und Aufteilung) ---------- */
+  function tokenize(sql) {
+    var re = /(\s+)|(--[^\n]*)|(\/\*[\s\S]*?(?:\*\/|$))|('(?:[^']|'')*'?)|("(?:[^"]|"")*"?)|(`[^`]*`?)|(\d+(?:\.\d+)?)|([A-Za-z_\u00C0-\u017F][A-Za-z0-9_\u00C0-\u017F]*)|(<>|>=|<=|!=|\|\||[^\s])/g;
+    var out = [], m, depth = 0;
+    while ((m = re.exec(sql))) {
+      if (m[1] || m[2] || m[3]) continue;
+      var t = m[0], type = (m[4] || m[5]) ? 'str' : m[6] ? 'id' : m[7] ? 'num' : m[8] ? 'id' : 'op';
+      if (m[6]) t = t.replace(/`/g, '');
+      var tok = { t: t, u: t.toUpperCase(), type: type, d: depth };
+      if (t === '(') depth++;
+      else if (t === ')') { depth = Math.max(0, depth - 1); tok.d = depth; }
+      out.push(tok);
+    }
+    return out;
+  }
+
+  /* ---------- Anweisungen trennen (Semikolon optional) ---------- */
+  function splitStatements(sql) {
+    var pieces = [], cur = '', i = 0, n = sql.length, q = null;
+    while (i < n) {
+      var ch = sql[i];
+      if (q) { cur += ch; if (ch === q) { if (sql[i + 1] === q) { cur += q; i += 2; continue; } q = null; } i++; continue; }
+      if (ch === "'" || ch === '"' || ch === '`') { q = ch; cur += ch; i++; continue; }
+      if (ch === '-' && sql[i + 1] === '-') { var j = sql.indexOf('\n', i); i = j < 0 ? n : j; continue; }
+      if (ch === '/' && sql[i + 1] === '*') { var k = sql.indexOf('*/', i + 2); i = k < 0 ? n : k + 2; cur += ' '; continue; }
+      if (ch === ';') { if (cur.trim()) pieces.push(cur); cur = ''; i++; continue; }
+      cur += ch; i++;
+    }
+    if (cur.trim()) pieces.push(cur);
+    var out = [];
+    pieces.forEach(function (p) { splitLines(p).forEach(function (s) { if (s.trim()) out.push(s.trim()); }); });
+    return out;
+  }
+
+  function stripParens(s) {
+    s = s.replace(/'(?:[^']|'')*'/g, "''");
+    var prev;
+    do { prev = s; s = s.replace(/\([^()]*\)/g, ''); } while (s !== prev);
+    return s;
+  }
+
+  // Trennt Anweisungen ohne Semikolon an Zeilenanfängen (INSERT, UPDATE, …, neue SELECT-Abfrage).
+  function splitLines(stmt) {
+    var lines = stmt.split('\n'), out = [], acc = [], depth = 0;
+    lines.forEach(function (line) {
+      var first = (line.trim().match(/^[A-Za-z_]+/) || [''])[0].toUpperCase();
+      var accText = acc.join('\n');
+      if (depth === 0 && accText.trim()) {
+        var split = false;
+        var accFirst = (accText.trim().match(/^[A-Za-z_]+/) || [''])[0].toUpperCase();
+        if (/^(INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|BEGIN|START|COMMIT|ROLLBACK|SAVEPOINT|RELEASE|END)$/.test(first)) split = true;
+        else if (/^(BEGIN|START|COMMIT|ROLLBACK|SAVEPOINT|RELEASE|END)$/.test(accFirst) && first) split = true;
+        else if (first === 'SELECT' && /^(UPDATE|DROP|ALTER)$/.test(accFirst)) split = true;
+        else if (first === 'SELECT') {
+          var lastLine = '';
+          for (var i = acc.length - 1; i >= 0; i--) if (acc[i].trim()) { lastLine = acc[i].trim().toUpperCase(); break; }
+          var flat = stripParens(accText).toUpperCase();
+          if (!/(\bAS|\bUNION|\bUNION ALL|\bINTERSECT|\bEXCEPT|\(|\bALL)$/.test(lastLine) && /\b(FROM|VALUES)\b/.test(flat)) split = true;
+        }
+        if (split) { out.push(accText); acc = []; }
+      }
+      acc.push(line);
+      var s = line.replace(/'(?:[^']|'')*'/g, '').replace(/--.*$/, '');
+      for (var c = 0; c < s.length; c++) { if (s[c] === '(') depth++; else if (s[c] === ')') depth = Math.max(0, depth - 1); }
+    });
+    if (acc.join('').trim()) out.push(acc.join('\n'));
+    return out;
+  }
+
+  /* ---------- MySQL-Schreibweisen für SQLite übersetzen ---------- */
+  function matchParen(s, open) {
+    var d = 0, q = null;
+    for (var i = open; i < s.length; i++) {
+      var ch = s[i];
+      if (q) { if (ch === q) q = null; continue; }
+      if (ch === "'" || ch === '"') { q = ch; continue; }
+      if (ch === '(') d++;
+      else if (ch === ')') { d--; if (d === 0) return i; }
+    }
+    return -1;
+  }
+  function rewrite(sql) {
+    sql = sql.replace(/\bSTART\s+TRANSACTION\b/gi, 'BEGIN').replace(/\b(BEGIN|COMMIT|ROLLBACK)\s+WORK\b/gi, '$1')
+             .replace(/\bSET\s+autocommit\s*=\s*\w+\s*;?/gi, '')
+             .replace(/(\bDROP\s+(?:COLUMN\s+)?[A-Za-z_]\w*)\s+(?:INT(?:EGER)?|BIGINT|SMALLINT|TINYINT(?:\s*\(\s*\d+\s*\))?|(?:VAR)?CHAR\s*\(\s*\d+\s*\)|TEXT|DATE|DATETIME|TIMESTAMP|TIME|BOOLEAN|BOOL|FLOAT|DOUBLE|REAL|(?:DECIMAL|NUMERIC)(?:\s*\([^)]*\))?)/gi, '$1');
+    sql = splitAlterActions(sql);
+    sql = sql.replace(/\bAUTO_INCREMENT\b/gi, '').replace(/\bENGINE\s*=\s*\w+/gi, '')
+             .replace(/\bDEFAULT\s+CHARSET\s*=\s*\w+/gi, '').replace(/\bUNSIGNED\b/gi, '');
+    // x >= ALL (…), x < ANY (…) usw. kennt SQLite nicht -> gleichwertige Form
+    var re = /(>=|<=|<>|!=|=|>|<)\s*(ALL|ANY|SOME)\s*\(/i, guard = 0, m;
+    while ((m = re.exec(sql)) && guard++ < 20) {
+      var open = m.index + m[0].length - 1, close = matchParen(sql, open);
+      if (close < 0) break;
+      var inner = sql.slice(open + 1, close), op = m[1], q = m[2].toUpperCase(), rep;
+      var isAll = q === 'ALL';
+      if (op === '<>' || op === '!=') rep = isAll ? 'NOT IN (' + inner + ')' : null;
+      else if (op === '=') rep = isAll ? null : 'IN (' + inner + ')';
+      else {
+        var wantMax = (op[0] === '>') === isAll;
+        rep = op + ' (SELECT * FROM (' + inner + ') ORDER BY 1 ' + (wantMax ? 'DESC' : 'ASC') + ' LIMIT 1)';
+      }
+      if (!rep) break;
+      sql = sql.slice(0, m.index) + rep + sql.slice(close + 1);
+    }
+    return sql;
+  }
+
+  // ALTER TABLE t ADD …, DROP … (MySQL) -> einzelne ALTER-Anweisungen (SQLite kann nur eine Aktion)
+  function splitAlterActions(sql) {
+    return splitStatements(sql).map(function (st) {
+      var m = /^ALTER\s+TABLE\s+([A-Za-z_`"]\w*`?)\s+([\s\S]*)$/i.exec(st.trim());
+      if (!m) return st;
+      var parts = [], depth = 0, cur = '', q = null;
+      for (var i = 0; i < m[2].length; i++) {
+        var ch = m[2][i];
+        if (q) { cur += ch; if (ch === q) q = null; continue; }
+        if (ch === "'") { q = ch; cur += ch; continue; }
+        if (ch === '(') depth++; else if (ch === ')') depth--;
+        if (ch === ',' && depth === 0) { parts.push(cur); cur = ''; continue; }
+        cur += ch;
+      }
+      parts.push(cur);
+      return parts.map(function (a) { return 'ALTER TABLE ' + m[1] + ' ' + a.trim(); }).join(';\n');
+    }).join(';\n');
+  }
+
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function registerFns(db) {
+    var d10 = function (v) { return v == null ? null : String(v).slice(0, 10); };
+    db.create_function('YEAR', function (v) { return v == null ? null : parseInt(String(v).slice(0, 4), 10); });
+    db.create_function('MONTH', function (v) { return v == null ? null : parseInt(String(v).slice(5, 7), 10); });
+    db.create_function('DAY', function (v) { return v == null ? null : parseInt(String(v).slice(8, 10), 10); });
+    db.create_function('CURDATE', function () { var x = new Date(); return x.getFullYear() + '-' + pad(x.getMonth() + 1) + '-' + pad(x.getDate()); });
+    db.create_function('NOW', function () { var x = new Date(); return x.getFullYear() + '-' + pad(x.getMonth() + 1) + '-' + pad(x.getDate()) + ' ' + pad(x.getHours()) + ':' + pad(x.getMinutes()) + ':' + pad(x.getSeconds()); });
+    db.create_function('DATEDIFF', function (a, b) { if (a == null || b == null) return null; return Math.round((Date.parse(d10(a)) - Date.parse(d10(b))) / 864e5); });
+    db.create_function('CEILING', function (v) { return v == null ? null : Math.ceil(v); });
+  }
+
+  function makeDb(SQL, seed) {
+    var db = new SQL.Database();
+    db.exec(seed);
+    db.exec('PRAGMA foreign_keys = ON;');
+    registerFns(db);
+    return db;
+  }
+
+  var FK_RE = /^ALTER\s+TABLE\s+[`"]?(\w+)[`"]?\s+ADD\s+(?:CONSTRAINT\s+[`"]?\w+[`"]?\s+)?FOREIGN\s+KEY\s*\(\s*[`"]?(\w+)[`"]?\s*\)\s*REFERENCES\s+[`"]?(\w+)[`"]?\s*\(\s*[`"]?(\w+)[`"]?\s*\)\s*$/i;
+  function hasColumn(db, table, col) {
+    try { return query(db, 'PRAGMA table_info(' + table + ')').values.some(function (r) { return String(r[1]).toLowerCase() === col.toLowerCase(); }); }
+    catch (e) { return false; }
+  }
+  function tableExists(db, table) {
+    return query(db, "SELECT 1 FROM sqlite_master WHERE type IN ('table','view') AND name = '" + table.replace(/'/g, '') + "' COLLATE NOCASE").values.length > 0;
+  }
+  function runScript(db, sql, isUser) {
+    var stmts = splitStatements(rewrite(sql)), last = null, count = 0, fks = [];
+    try {
+      stmts.forEach(function (s) {
+        var fk = FK_RE.exec(s.trim());
+        if (fk) {
+          // SQLite kennt ADD FOREIGN KEY nicht: prüfen und merken statt ausführen
+          if (!tableExists(db, fk[1])) throw new Error('no such table: ' + fk[1]);
+          if (!hasColumn(db, fk[1], fk[2])) throw new Error('no such column: ' + fk[2] + ' (in ' + fk[1] + ')');
+          if (!tableExists(db, fk[3])) throw new Error('no such table: ' + fk[3]);
+          if (!hasColumn(db, fk[3], fk[4])) throw new Error('no such column: ' + fk[4] + ' (in ' + fk[3] + ')');
+          fks.push({ table: fk[1].toLowerCase(), col: fk[2].toLowerCase(), ref: fk[3].toLowerCase() });
+          count++;
+          return;
+        }
+        var it = db.iterateStatements(s), nx;
+        while (!(nx = it.next()).done) {
+          var st = nx.value, cols = st.getColumnNames(), rows = [];
+          while (st.step()) rows.push(st.get());
+          if (cols.length) last = { columns: cols, values: rows };
+          count++;
+        }
+      });
+    } catch (e) { return { error: String(e && e.message || e), last: last, count: count, fks: fks }; }
+    return { error: null, last: last, count: count, fks: fks };
+  }
+
+  function query(db, sql) {
+    var st = db.prepare(sql), cols = st.getColumnNames(), rows = [];
+    while (st.step()) rows.push(st.get());
+    st.free();
+    return { columns: cols, values: rows };
+  }
+
+  /* ---------- Lint: Prinzipfehler, die SQLite durchgehen lässt ---------- */
+  function splitComma(toks, d) {
+    var items = [[]];
+    toks.forEach(function (t) { if (t.t === ',' && t.d === d) items.push([]); else items[items.length - 1].push(t); });
+    return items.filter(function (x) { return x.length; });
+  }
+  function stripAlias(it, d) {
+    for (var i = 0; i < it.length; i++) if (it[i].u === 'AS' && it[i].d === d && it[i].type === 'id') return it.slice(0, i);
+    if (it.length >= 2) {
+      var last = it[it.length - 1], prev = it[it.length - 2];
+      if (last.type === 'id' && !NC[last.u] && prev.t !== '.' && (prev.type !== 'op' || prev.t === ')')) return it.slice(0, -1);
+    }
+    return it;
+  }
+  function containsAgg(it) { for (var i = 0; i < it.length - 1; i++) if (AGG[it[i].u] && it[i + 1].t === '(') return true; return false; }
+  function containsSelect(it) { return it.some(function (t) { return t.u === 'SELECT'; }); }
+  function colRefs(it) {
+    var refs = [];
+    for (var i = 0; i < it.length; i++) {
+      var t = it[i];
+      if (t.t === '*' && (i === 0 || it[i - 1].t !== '.') && it.length === 1) { refs.push({ q: null, n: '*' }); continue; }
+      if (t.type !== 'id' || NC[t.u]) continue;
+      if (it[i + 1] && it[i + 1].t === '(') continue;
+      if (it[i + 1] && it[i + 1].t === '.' && it[i + 2]) { refs.push({ q: t.t.toLowerCase(), n: it[i + 2].t.toLowerCase() }); i += 2; continue; }
+      refs.push({ q: null, n: t.t.toLowerCase() });
+    }
+    return refs;
+  }
+  function sameRef(g, r) { return g.n === r.n && (!g.q || !r.q || g.q === r.q); }
+
+  function lintGroupBy(toks) {
+    var msgs = [], seen = {};
+    for (var i = 0; i < toks.length; i++) {
+      if (toks[i].u !== 'SELECT' || toks[i].type !== 'id') continue;
+      var d = toks[i].d, end = toks.length, j, k;
+      for (j = i + 1; j < toks.length; j++) {
+        var tj = toks[j];
+        if (tj.d < d) { end = j; break; }
+        if (tj.d === d && (tj.t === ';' || (tj.type === 'id' && /^(UNION|INTERSECT|EXCEPT|SELECT|INSERT|UPDATE|DELETE|CREATE)$/.test(tj.u)))) { end = j; break; }
+      }
+      var from = -1, gb = -1;
+      for (k = i + 1; k < end; k++) if (toks[k].d === d && toks[k].u === 'FROM' && toks[k].type === 'id') { from = k; break; }
+      for (k = i + 1; k < end - 1; k++) if (toks[k].d === d && toks[k].u === 'GROUP' && toks[k + 1].u === 'BY') { gb = k; break; }
+      var items = splitComma(toks.slice(i + 1, from >= 0 ? from : end), d);
+      var groupRefs = [];
+      if (gb >= 0) {
+        var ge = end;
+        for (k = gb + 2; k < end; k++) if (toks[k].d === d && toks[k].type === 'id' && /^(HAVING|ORDER|LIMIT|WINDOW)$/.test(toks[k].u)) { ge = k; break; }
+        splitComma(toks.slice(gb + 2, ge), d).forEach(function (it) { groupRefs = groupRefs.concat(colRefs(it)); });
+      }
+      var hasAgg = false, bare = [];
+      items.forEach(function (it) {
+        if (it.length && it[0].u === 'DISTINCT') it = it.slice(1);
+        it = stripAlias(it, d);
+        if (containsSelect(it)) return;
+        if (containsAgg(it)) { hasAgg = true; return; }
+        bare = bare.concat(colRefs(it));
+      });
+      bare.forEach(function (r) {
+        var label = (r.q ? r.q + '.' : '') + r.n;
+        if (gb >= 0) {
+          if (groupRefs.some(function (g) { return sameRef(g, r); })) return;
+          if (!seen[label]) { seen[label] = 1; msgs.push('„' + label + '“ steht im SELECT, aber weder im GROUP BY noch in einer Aggregatfunktion. In Standard-SQL und in der Prüfung ist das ein Fehler, nur SQLite lässt es durch.'); }
+        } else if (hasAgg) {
+          if (!seen[label]) { seen[label] = 1; msgs.push('„' + label + '“ steht neben einer Aggregatfunktion im SELECT, es fehlt aber ein GROUP BY.'); }
+        }
+      });
+    }
+    return msgs;
+  }
+
+  function lintNull(toks) {
+    for (var i = 0; i < toks.length; i++) {
+      var t = toks[i];
+      var cmpNull = (/^(=|<>|!=)$/.test(t.t) && toks[i + 1] && toks[i + 1].u === 'NULL') ||
+                    (t.u === 'NULL' && t.type === 'id' && toks[i + 1] && /^(=|<>|!=)$/.test(toks[i + 1].t));
+      if (!cmpNull) continue;
+      for (var k = i - 1; k >= 0; k--) {
+        if (toks[k].type !== 'id') continue;
+        if (toks[k].u === 'SET') break;
+        if (/^(WHERE|HAVING|ON|WHEN|AND|OR)$/.test(toks[k].u)) return ['Ein Vergleich mit „= NULL“ oder „<> NULL“ ist nie wahr. Auf fehlende Werte prüfst du mit IS NULL bzw. IS NOT NULL.'];
+      }
+    }
+    return [];
+  }
+
+  function lintDates(toks) {
+    for (var i = 0; i < toks.length; i++)
+      if (toks[i].type === 'str' && /^'\d{1,2}\.\d{1,2}\.\d{2,4}/.test(toks[i].t))
+        return ['Datumsangaben schreibst du in SQL im Format \'JJJJ-MM-TT\', zum Beispiel \'2025-06-01\'. ' + toks[i].t + ' wird nur als Text verglichen.'];
+    return [];
+  }
+
+  function lintAll(sql, task) {
+    var toks = tokenize(sql), out = [];
+    out = out.concat(lintGroupBy(toks), lintNull(toks), lintDates(toks));
+    var clean = sql.replace(/--[^\n]*/g, '');
+    ((task.check && task.check.require) || []).forEach(function (r) { if (!new RegExp(r[0], 'i').test(clean)) out.push(r[1]); });
+    return out;
+  }
+
+  /* ---------- Werte und Ergebnisse vergleichen ---------- */
+  function num(v) {
+    if (typeof v === 'number') return v;
+    if (typeof v === 'string' && /^\s*-?\d+(\.\d+)?\s*$/.test(v)) return parseFloat(v);
+    return null;
+  }
+  function normS(v) {
+    v = String(v).trim().replace(/^(\d{4}-\d\d-\d\d)T/, '$1 ');
+    if (/^\d{4}-\d\d-\d\d \d\d:\d\d$/.test(v)) v += ':00';
+    return v.toLowerCase();
+  }
+  function veq(a, b) {
+    var an = a === null || a === undefined, bn = b === null || b === undefined;
+    if (an || bn) return an && bn;
+    var na = num(a), nb = num(b);
+    if (na !== null && nb !== null) return Math.abs(na - nb) <= 0.051;
+    return normS(a) === normS(b);
+  }
+  function rowEq(r1, r2) { if (r1.length !== r2.length) return false; for (var i = 0; i < r1.length; i++) if (!veq(r1[i], r2[i])) return false; return true; }
+  function diffRows(exp, usr) {
+    var used = [], missing = [];
+    exp.forEach(function (a) {
+      for (var j = 0; j < usr.length; j++) if (!used[j] && rowEq(a, usr[j])) { used[j] = 1; return; }
+      missing.push(a);
+    });
+    return { missing: missing, extra: usr.filter(function (_, j) { return !used[j]; }) };
+  }
+  function multisetEq(a, b) { if (a.length !== b.length) return false; var d = diffRows(a, b); return !d.missing.length && !d.extra.length; }
+  function project(rows, idx) { return rows.map(function (r) { return idx.map(function (i) { return r[i]; }); }); }
+  function col(res, i) { return res.values.map(function (r) { return [r[i]]; }); }
+
+  function cmpVal(a, b) {
+    var an = a === null || a === undefined, bn = b === null || b === undefined;
+    if (an && bn) return 0; if (an) return -1; if (bn) return 1;
+    var na = num(a), nb = num(b);
+    if (na !== null && nb !== null) return Math.abs(na - nb) <= 1e-9 ? 0 : (na < nb ? -1 : 1);
+    var sa = normS(a), sb = normS(b);
+    return sa === sb ? 0 : (sa < sb ? -1 : 1);
+  }
+  function sortedOk(rows, spec) {
+    for (var i = 1; i < rows.length; i++) {
+      for (var s = 0; s < spec.length; s++) {
+        var c = cmpVal(rows[i - 1][spec[s][0]], rows[i][spec[s][0]]) * (spec[s][1] === 'desc' ? -1 : 1);
+        if (c < 0) break;
+        if (c > 0) return false;
+      }
+    }
+    return true;
+  }
+
+  // Sucht für jede erwartete Spalte eine passende Spalte im Ergebnis (Aliasnamen und Reihenfolge egal).
+  function findMapping(exp, usr, cols) {
+    var cands = {}, best = null, iter = 0;
+    cols.forEach(function (e) {
+      cands[e] = [];
+      for (var u = 0; u < usr.columns.length; u++) if (multisetEq(col(exp, e), col(usr, u))) cands[e].push(u);
+    });
+    (function dfs(pos, used, assign) {
+      if (best || iter++ > 20000) return;
+      if (pos === cols.length) {
+        if (multisetEq(project(exp.values, cols), project(usr.values, assign))) best = assign.slice();
+        return;
+      }
+      cands[cols[pos]].forEach(function (c) {
+        if (best || used[c]) return;
+        used[c] = 1; assign.push(c); dfs(pos + 1, used, assign); assign.pop(); used[c] = 0;
+      });
+    })(0, {}, []);
+    return { mapping: best, cands: cands };
+  }
+
+  function compareResult(exp, usr, sort) {
+    var E = exp.columns.length;
+    if (usr.values.length !== exp.values.length) return { kind: 'count', exp: exp.values.length, got: usr.values.length };
+    if (!exp.values.length) return { kind: 'ok', extra: 0 };
+    var all = []; for (var i = 0; i < E; i++) all.push(i);
+    var fm = findMapping(exp, usr, all);
+    if (fm.mapping) {
+      var extra = usr.columns.length - E;
+      if (sort && sort.length && !sortedOk(project(usr.values, fm.mapping), sort)) return { kind: 'order', extra: extra };
+      return { kind: 'ok', extra: extra };
+    }
+    var have = all.filter(function (e) { return fm.cands[e].length; });
+    var missing = all.filter(function (e) { return !fm.cands[e].length; });
+    if (missing.length && have.length) {
+      var sub = findMapping(exp, usr, have);
+      if (sub.mapping) {
+        var names = missing.map(function (e) { return exp.columns[e]; });
+        // Hat die Abfrage dafür eine eigene Spalte (nur mit anderen Werten), ist der Wert falsch berechnet.
+        if (usr.columns.length - have.length >= missing.length) return { kind: 'vals', missing: names };
+        return { kind: 'cols', missing: names };
+      }
+    }
+    return { kind: 'rows' };
+  }
+
+  function snapshot(db, tables) {
+    var s = {};
+    tables.forEach(function (t) { try { s[t] = query(db, 'SELECT * FROM ' + t); } catch (e) { s[t] = null; } });
+    return s;
+  }
+  function stripCols(res, ignore) {
+    if (!res) return res;
+    var keep = [];
+    res.columns.forEach(function (c, i) { if (!ignore || ignore.indexOf(c) < 0) keep.push(i); });
+    return { columns: keep.map(function (i) { return res.columns[i]; }), values: project(res.values, keep) };
+  }
+  function compareSnapshots(ref, usr, tables, ignore) {
+    var diffs = [];
+    tables.forEach(function (t) {
+      var r = stripCols(ref[t], ignore && ignore[t]), u = stripCols(usr[t], ignore && ignore[t]);
+      if (!u) { diffs.push({ table: t, gone: true }); return; }
+      var d = diffRows(r.values, u.values);
+      if (d.missing.length || d.extra.length) diffs.push({ table: t, columns: r.columns, missing: d.missing, extra: d.extra });
+    });
+    return diffs;
+  }
+
+  /* ---------- Fehlermeldungen übersetzen ---------- */
+  function translate(msg) {
+    var m;
+    if ((m = /no such column: (.+)/.exec(msg))) return 'Die Spalte „' + m[1] + '“ gibt es nicht oder sie ist an dieser Stelle nicht sichtbar. Prüfe Schreibweise und Tabellenalias.';
+    if ((m = /no such table: (.+)/.exec(msg))) return 'Die Tabelle „' + m[1] + '“ gibt es nicht. Prüfe die Schreibweise im Schema.';
+    if ((m = /ambiguous column name: (.+)/.exec(msg))) return 'Die Spalte „' + m[1] + '“ kommt in mehreren Tabellen vor. Schreib den Tabellennamen oder Alias davor, zum Beispiel k.' + m[1].replace(/^.*\./, '') + '.';
+    if (/misuse of aggregate/.test(msg)) return 'Eine Aggregatfunktion (COUNT, SUM, AVG …) steht an einer Stelle, an der sie nicht erlaubt ist, etwa in WHERE. Bedingungen auf Gruppen gehören in HAVING.';
+    if (/GROUP BY clause is required before HAVING|HAVING clause on a non-aggregate query/.test(msg)) return 'HAVING filtert Gruppen und braucht deshalb ein GROUP BY davor.';
+    if ((m = /sub-select returns (\d+) columns/.exec(msg))) return 'Eine Unterabfrage liefert ' + m[1] + ' Spalten. An dieser Stelle ist genau eine Spalte erlaubt.';
+    if ((m = /no such function: (\w+)/.exec(msg))) return 'Die Funktion ' + m[1] + ' gibt es in der Prüfumgebung nicht. Löse es mit Standardfunktionen.';
+    if ((m = /table (\w+) has no column named (\w+)/.exec(msg))) return 'Die Tabelle ' + m[1] + ' hat keine Spalte „' + m[2] + '“.';
+    if ((m = /(\d+) values for (\d+) columns/.exec(msg))) return 'Du gibst ' + m[1] + ' Werte für ' + m[2] + ' Spalten an. Die Anzahl muss übereinstimmen.';
+    if ((m = /UNIQUE constraint failed: (.+)/.exec(msg))) return 'Der Wert in ' + m[1] + ' ist schon vergeben (Primärschlüssel oder UNIQUE).';
+    if (/FOREIGN KEY constraint failed/.test(msg)) return 'Ein Fremdschlüssel verweist auf einen Datensatz, den es (noch) nicht gibt. Prüfe die Werte und die Reihenfolge der Anweisungen.';
+    if ((m = /NOT NULL constraint failed: (.+)/.exec(msg))) return 'Die Spalte ' + m[1] + ' darf nicht leer sein.';
+    if (/CHECK constraint failed/.test(msg)) return 'Ein Wert verletzt eine CHECK-Bedingung.';
+    if ((m = /(table|view) (\w+) already exists/.exec(msg))) return (m[1] === 'view' ? 'Die View ' : 'Die Tabelle ') + m[2] + ' gibt es schon.';
+    if (/incomplete input/.test(msg)) return 'Die Anweisung ist unvollständig. Fehlt eine schließende Klammer oder ein Teil der Abfrage?';
+    if (/unrecognized token: "'/.test(msg)) return 'Ein Text in Hochkommas wird nicht geschlossen.';
+    if ((m = /near "(.+?)": syntax error/.exec(msg))) return 'Syntaxfehler in der Nähe von „' + m[1] + '“.';
+    if (/row value misused/.test(msg)) return 'Ein Klammerausdruck mit mehreren Werten steht an einer Stelle, an der nur ein Wert erlaubt ist.';
+    return msg;
+  }
+
+  /* ---------- Prüfabläufe ---------- */
+  var refCache = {};
+  function reference(SQL, task, seeds, ds) {
+    var key = task.id + ds;
+    if (refCache[key]) return refCache[key];
+    var db = makeDb(SQL, seeds[ds]);
+    var r = runScript(db, task.solution, false);
+    if (r.error) throw new Error('Musterlösung ' + task.id + ': ' + r.error);
+    if (task.check.kind === 'dml') { /* Snapshot nach dem Lauf */ }
+    var out = { last: r.last, snap: snapshot(db, seeds.tables) };
+    if (task.check.kind === 'view') out.view = query(db, 'SELECT * FROM ' + task.check.view);
+    db.close();
+    refCache[key] = out;
+    return out;
+  }
+
+  function countMsg(c) {
+    return 'Du bekommst ' + c.got + (c.got === 1 ? ' Zeile' : ' Zeilen') + ', erwartet ' + (c.exp === 1 ? 'ist ' : 'sind ') + c.exp + '. ' +
+      (c.got > c.exp ? 'Zu viele Zeilen: Fehlt eine Bedingung, oder vervielfacht ein JOIN die Zeilen?'
+                     : 'Zu wenige Zeilen: Ist eine Bedingung zu streng, oder wirft ein INNER JOIN Zeilen ohne Partner hinaus?');
+  }
+
+  function checkSelectLike(SQL, task, sql, seeds, out) {
+    var spec = task.check, results = {};
+    for (var p = 0; p < 2; p++) {
+      var ds = p ? 'B' : 'A', ref = reference(SQL, task, seeds, ds);
+      var db = makeDb(SQL, seeds[ds]), r = runScript(db, sql, true);
+      if (r.error) { db.close(); return fail(out, r.error); }
+      if (spec.kind === 'view') {
+        var vu;
+        try { vu = query(db, 'SELECT * FROM ' + spec.view); }
+        catch (e) { db.close(); out.status = 'bad'; out.msgs.push('Die View ' + spec.view + ' wurde nicht angelegt oder heißt anders.'); return out; }
+        var vc = compareResult(ref.view, vu, null);
+        if (vc.kind !== 'ok' && !(p === 1 && vc.kind === 'cols')) {
+          db.close(); out.user = vu; out.expected = ref.view; out.userLabel = 'Inhalt deiner View';
+          if (p === 0) { out.status = vc.kind === 'cols' ? 'part' : 'bad'; out.msgs.push('Teil a): Der Inhalt der View stimmt nicht. ' + (vc.kind === 'count' ? countMsg(vc) : vc.kind === 'cols' ? 'Es fehlt: ' + vc.missing.join(', ') + '.' : vc.kind === 'vals' ? 'Falsch berechnet: ' + vc.missing.join(', ') + '.' : 'Die Werte weichen ab.')); }
+          else edgeFail(out, spec);
+          return out;
+        }
+        if (!r.last || r.count < 2) { db.close(); out.status = 'part'; out.msgs.push('Teil a) stimmt. Für Teil b) fehlt noch die Abfrage auf die View.'); return out; }
+      }
+      db.close();
+      if (!r.last) { out.status = 'bad'; out.msgs.push('Deine Eingabe liefert keine Ergebnistabelle. Gefragt ist eine SELECT-Abfrage.'); return out; }
+      if (p === 0) { out.user = r.last; out.expected = ref.last; }
+      var c = compareResult(ref.last, r.last, spec.sort);
+      results[ds] = c;
+      if (p === 0) {
+        if (c.kind === 'count') { out.status = 'bad'; out.msgs.push(countMsg(c)); return out; }
+        if (c.kind === 'rows') { out.status = 'bad'; out.msgs.push('Die Anzahl der Zeilen stimmt, die Werte aber nicht. Vergleiche dein Ergebnis mit dem erwarteten.'); return out; }
+        if (c.kind === 'vals') { out.status = 'bad'; out.msgs.push('Die Zeilen passen, aber diese berechneten Werte stimmen nicht: ' + c.missing.join(', ') + '. Vergleiche dein Ergebnis mit dem erwarteten.'); return out; }
+      } else if (c.kind === 'count' || c.kind === 'rows' || c.kind === 'vals') {
+        out.userB = r.last; out.expectedB = ref.last;
+        edgeFail(out, spec); return out;
+      }
+    }
+    var a = results.A;
+    if (a.kind === 'cols') { out.status = 'part'; out.msgs.push('Die Zeilen stimmen, aber diese Angabe fehlt noch in deinem Ergebnis: ' + a.missing.join(', ') + '.'); return out; }
+    if (a.kind === 'order') { out.status = 'part'; out.msgs.push('Inhalt stimmt, aber die Sortierung nicht. Gefordert ist: ' + (spec.sortText || 'siehe Aufgabe') + '.'); return out; }
+    out.status = 'ok';
+    out.msgs.push('Dein Ergebnis stimmt mit beiden Testdatensätzen überein, auch mit den Sonderfällen.');
+    if (a.extra > 0) out.notes.push('Du gibst ' + a.extra + (a.extra === 1 ? ' Spalte' : ' Spalten') + ' mehr aus als gefordert. Am Prinzip ändert das nichts.');
+    return out;
+  }
+
+  function checkDml(SQL, task, sql, seeds, out) {
+    var spec = task.check;
+    for (var p = 0; p < 2; p++) {
+      var ds = p ? 'B' : 'A', ref = reference(SQL, task, seeds, ds);
+      var db = makeDb(SQL, seeds[ds]), base = snapshot(db, seeds.tables), r = runScript(db, sql, true);
+      if (r.error) { db.close(); return fail(out, r.error); }
+      var snap = snapshot(db, seeds.tables); db.close();
+      if (!spec.allowUnchanged && !compareSnapshots(base, snap, seeds.tables, null).length) { out.status = 'bad'; out.msgs.push('Deine Eingabe hat keine Daten verändert. Gefragt ist eine Änderung (UPDATE, INSERT …).'); return out; }
+      var diffs = compareSnapshots(ref.snap, snap, seeds.tables, spec.ignore);
+      if (diffs.length) {
+        out.diffs = diffs;
+        if (p === 0) {
+          out.status = 'bad';
+          out.msgs.push('Nach deiner Anweisung sieht ' + (diffs.length === 1 ? 'die Tabelle ' : 'es in den Tabellen ') + diffs.map(function (d) { return d.table; }).join(', ') + ' anders aus als erwartet.' +
+            (spec.allowUnchanged ? ' Am Ende sollten alle Tabellen wieder im Ausgangszustand sein.' : ''));
+        } else { out.diffsLabel = 'zweiter Testdatensatz'; edgeFail(out, spec); }
+        return out;
+      }
+      if (spec.compareLast && p === 0) {
+        out.user = r.last; out.expected = ref.last;
+        if (!r.last) { out.status = 'part'; out.msgs.push('Die Tabellen stimmen am Ende. Es fehlt aber die Abfrage, die die geänderten Werte innerhalb der Transaktion anzeigt.'); return out; }
+        var lc = compareResult(ref.last, r.last, null);
+        if (lc.kind !== 'ok') { out.status = 'part'; out.msgs.push('Die Tabellen stimmen am Ende. Deine Abfrage innerhalb der Transaktion zeigt aber nicht die erwarteten Werte. Steht sie zwischen UPDATE und ROLLBACK?'); return out; }
+      }
+    }
+    out.status = 'ok';
+    out.msgs.push(spec.allowUnchanged ? 'Deine Abfrage zeigt innerhalb der Transaktion die geänderten Werte, und danach sind alle Tabellen wieder im Ausgangszustand.'
+                                      : 'Die Tabellen sehen nach deiner Anweisung genau so aus wie nach der Musterlösung, in beiden Testdatensätzen.');
+    return out;
+  }
+
+  function colInfo(db, table) {
+    try { return query(db, 'PRAGMA table_info(' + table + ')').values; } catch (e) { return []; }
+  }
+  function structOk(db, a, fks) {
+    var cols, row;
+    if (a.type === 'table') return tableExists(db, a.table) === a.exists;
+    if (a.type === 'column') return hasColumn(db, a.table, a.col) === a.exists;
+    if (a.type === 'type') {
+      row = colInfo(db, a.table).filter(function (r) { return String(r[1]).toLowerCase() === a.col.toLowerCase(); })[0];
+      return !!row && new RegExp(a.re, 'i').test(String(row[2]).trim());
+    }
+    if (a.type === 'fk') {
+      var t = a.table.toLowerCase(), c = a.col.toLowerCase(), ref = a.ref.toLowerCase();
+      if (fks.some(function (f) { return f.table === t && f.col === c && f.ref === ref; })) return true;
+      try {
+        return query(db, 'PRAGMA foreign_key_list(' + a.table + ')').values.some(function (r) {
+          return String(r[2]).toLowerCase() === ref && String(r[3]).toLowerCase() === c;
+        });
+      } catch (e) { return false; }
+    }
+    if (a.type === 'rows') { try { return query(db, 'SELECT COUNT(*) FROM ' + a.table).values[0][0] === a.count; } catch (e) { return false; } }
+    return true;
+  }
+
+  function checkDdl(SQL, task, sql, seeds, out) {
+    var spec = task.check, setup = spec.setup || '';
+    var db = makeDb(SQL, seeds.A);
+    if (setup) db.exec(setup);
+    var r = runScript(db, sql, true);
+    if (r.error) { db.close(); return fail(out, r.error); }
+    var problems = [], passed = 0, total = 0, blocking = null;
+    spec.asserts.forEach(function (a) {
+      if (a.type === 'insert') return;
+      total++;
+      if (structOk(db, a, r.fks)) passed++;
+      else { problems.push(a.msg); if (a.type === 'table' && a.exists && !blocking) blocking = a.msg; }
+    });
+    db.close();
+    if (blocking) { out.status = 'bad'; out.msgs.push(blocking); return out; }
+    for (var i = 0; i < spec.asserts.length; i++) {
+      var a = spec.asserts[i];
+      if (a.type !== 'insert') continue;
+      total++;
+      var d = makeDb(SQL, seeds.A);
+      if (setup) d.exec(setup);
+      runScript(d, sql, true);
+      var accepted = true, err = '';
+      try { a.pre.forEach(function (p) { d.exec(p); }); d.exec(a.sql); }
+      catch (e) { accepted = false; err = String(e.message || e); }
+      d.close();
+      var m = /has no column named (\w+)/.exec(err);
+      if (m) { out.status = 'bad'; out.msgs.push('Die Spalte „' + m[1] + '“ fehlt oder heißt anders. Verwende die Spaltennamen aus der Aufgabe.'); return out; }
+      if (accepted === a.ok) passed++; else problems.push(a.msg);
+    }
+    if (!problems.length) {
+      out.status = 'ok';
+      out.msgs.push('Alle ' + total + ' Prüfpunkte stimmen: Struktur, Datentypen und Schlüssel sind richtig, gültige Daten werden angenommen und jede verletzte Regel wird abgelehnt.');
+      return out;
+    }
+    out.status = problems.length <= 2 ? 'part' : 'bad';
+    out.msgs.push(passed + ' von ' + total + ' Prüfpunkten stimmen.');
+    out.msgs = out.msgs.concat(problems);
+    return out;
+  }
+
+  function fail(out, err) {
+    out.status = 'error';
+    out.msgs.push(translate(err));
+    out.raw = err;
+    return out;
+  }
+  function edgeFail(out, spec) {
+    out.status = 'part';
+    out.msgs.push('Mit den Standarddaten stimmt alles, mit dem zweiten Testdatensatz nicht. ' +
+      (spec.edge || 'Er enthält zusätzliche Räder, Ausleihen und Gleichstände.') + ' Deine Lösung trifft das Prinzip also noch nicht ganz.');
+  }
+
+  function check(SQL, task, sql, seeds) {
+    var out = { status: null, msgs: [], notes: [], warn: [] };
+    if (!sql.trim()) { out.status = 'empty'; out.msgs.push('Gib zuerst deine Lösung ein.'); return out; }
+    out.warn = lintAll(sql, task);
+    var k = task.check.kind;
+    if (k === 'none') { out.status = 'empty'; out.msgs.push('Diese Aufgabe beantwortest du in Worten. Vergleiche mit der Musterlösung.'); return out; }
+    if (k === 'ddl') checkDdl(SQL, task, sql, seeds, out);
+    else if (k === 'dml') checkDml(SQL, task, sql, seeds, out);
+    else checkSelectLike(SQL, task, sql, seeds, out);
+    if (out.status === 'ok' && out.warn.length) { out.status = 'part'; out.msgs = ['Das Ergebnis stimmt, aber deine Lösung enthält einen Prinzipfehler:']; }
+    return out;
+  }
+
+  var api = { check: check, splitStatements: splitStatements, rewrite: rewrite, tokenize: tokenize, lintAll: lintAll, translate: translate };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.SqlCheck = api;
+})(this);
+
+</script>
+<script>
+(function () {
+  var DATA = JSON.parse(document.getElementById('data').textContent);
+  var TASKS = DATA.tasks;
+  var LEVELS = [
+    { key: 'grund', name: 'Tabellen & Datentypen', filter: 'Tabellen', chip: 'Einfach', sq: 0, sub: 'Auffrischung: CREATE, ALTER, DROP und Datentypen' },
+    { key: 'txn', name: 'Transaktionen', filter: 'Transaktionen', chip: 'Einfach', sq: 0, sub: 'Auffrischung: COMMIT, ROLLBACK und ACID' },
+    { key: 'mittel', name: 'Mittel', sq: 1, sub: 'Grundlagen sicher anwenden' },
+    { key: 'schwer', name: 'Schwer', sq: 2, sub: 'Unterabfragen, Fallen, DDL' },
+    { key: 'sehr', name: 'Sehr schwer', sq: 3, sub: 'Prüfungsniveau' }
+  ];
+  var LV = {}; LEVELS.forEach(function (l) { LV[l.key] = l; });
+  var KEY = 'ap2-sql-training-v1';
+
+  var state = { ratings: {}, level: 'alle', status: 'alle', drafts: {} };
+  try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved && saved.ratings) { state.ratings = saved.ratings; state.level = saved.level || 'alle'; state.status = saved.status || 'alle'; state.drafts = saved.drafts || {}; } } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  var open = {}; // id -> {hint, sol, bench}
+  var feedback = {}, palState = {}, history = {};
+  var TBYID = {}; TASKS.forEach(function (t) { TBYID[t.id] = t; });
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  var KW = ('SELECT FROM WHERE AND OR NOT IN IS NULL AS JOIN LEFT RIGHT INNER OUTER ON GROUP BY HAVING ORDER ASC DESC ' +
+    'INSERT INTO VALUES UPDATE SET DELETE CREATE TABLE VIEW PRIMARY KEY FOREIGN REFERENCES UNIQUE CHECK DEFAULT ' +
+    'BETWEEN EXISTS DISTINCT ALL ANY INTERSECT UNION EXCEPT LIMIT CASE WHEN THEN ELSE END INT VARCHAR CHAR DATE DATETIME TIME DECIMAL TINYINT BOOLEAN CURRENT_DATE ALTER ADD COLUMN DROP START TRANSACTION COMMIT ROLLBACK BEGIN').split(' ');
+  var FN = 'COUNT SUM AVG MIN MAX ROUND COALESCE'.split(' ');
+  function hl(sql) {
+    var re = /(--[^\n]*)|('(?:[^']|'')*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_][A-Za-z0-9_]*)|([\s\S])/g, out = '', m;
+    while ((m = re.exec(sql))) {
+      if (m[1]) out += '<span class="c">' + esc(m[1]) + '</span>';
+      else if (m[2]) out += '<span class="s">' + esc(m[2]) + '</span>';
+      else if (m[3]) out += '<span class="n">' + m[3] + '</span>';
+      else if (m[4]) { var u = m[4].toUpperCase();
+        if (FN.indexOf(u) >= 0) out += '<span class="f">' + m[4] + '</span>';
+        else if (KW.indexOf(u) >= 0) out += '<span class="k">' + m[4] + '</span>';
+        else out += m[4]; }
+      else out += esc(m[5]);
+    }
+    return out;
+  }
+
+  var CHEV = '<svg class="chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 3.5 5 7l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var STAMP = { ok: 'sitzt ✓', part: 'teilweise', bad: 'wiederholen' };
+
+  /* Schema */
+  (function renderSchema() {
+    var h = '';
+    DATA.schema.forEach(function (t) {
+      h += '<section class="tbl"><h3>' + t.name + '</h3><ul>';
+      t.cols.forEach(function (c) {
+        var name = c[0], type = c[1], kind = c[2], note = c[3];
+        var fkTarget = '', extra = '';
+        if (kind === 'fk' && note) { var parts = note.split(' · '); fkTarget = parts[0]; extra = parts[1] || ''; }
+        else if (note) extra = note;
+        h += '<li><span class="col' + (kind === 'pk' ? ' pk' : '') + '">' + name +
+          (kind === 'fk' ? '<span class="fk">↗ ' + esc(fkTarget) + '</span>' : '') + '</span>' +
+          '<span class="type">' + type + '</span>' +
+          (extra ? '<span class="note">' + esc(extra) + '</span>' : '') + '</li>';
+      });
+      h += '</ul></section>';
+    });
+    h += '<div class="keys"><span><u>unterstrichen</u> = Primärschlüssel</span><span><span class="fk" style="margin:0">↗ Tabelle</span> = Fremdschlüssel</span></div>';
+    h += '<section class="tbl rel"><h3>Beziehungen</h3><ul>' + DATA.relations.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul></section>';
+    document.getElementById('schema-body').innerHTML = h;
+  })();
+
+  /* Filter */
+  function counts() {
+    var c = { ok: 0, part: 0, bad: 0 };
+    Object.keys(state.ratings).forEach(function (k) { if (c[state.ratings[k]] !== undefined) c[state.ratings[k]]++; });
+    return c;
+  }
+  function renderFilters() {
+    var lv = [{ k: 'alle', t: 'Alle' }].concat(LEVELS.map(function (l) { return { k: l.key, t: l.filter || l.name }; }));
+    document.getElementById('f-level').innerHTML = lv.map(function (o) {
+      var n = o.k === 'alle' ? TASKS.length : TASKS.filter(function (t) { return t.level === o.k; }).length;
+      return '<button type="button" data-k="' + o.k + '" aria-pressed="' + (state.level === o.k) + '">' + o.t + ' <span style="opacity:.7">' + n + '</span></button>';
+    }).join('');
+    var st = [{ k: 'alle', t: 'Alle' }, { k: 'offen', t: 'Offen' }, { k: 'wdh', t: 'Wiederholen' }, { k: 'ok', t: 'Sitzt' }];
+    document.getElementById('f-status').innerHTML = st.map(function (o) {
+      return '<button type="button" data-k="' + o.k + '" aria-pressed="' + (state.status === o.k) + '">' + o.t + '</button>';
+    }).join('');
+  }
+  document.getElementById('f-level').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; state.level = b.dataset.k; save(); renderFilters(); renderTasks(); });
+  document.getElementById('f-status').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; state.status = b.dataset.k; save(); renderFilters(); renderTasks(); });
+
+  function matches(t) {
+    if (state.level !== 'alle' && t.level !== state.level) return false;
+    var r = state.ratings[t.id];
+    if (state.status === 'offen') return !r;
+    if (state.status === 'wdh') return r === 'part' || r === 'bad';
+    if (state.status === 'ok') return r === 'ok';
+    return true;
+  }
+
+  function taskHTML(t) {
+    var l = LV[t.level], o = open[t.id] || {}, r = state.ratings[t.id];
+    var sq = ''; for (var i = 1; i <= 3; i++) sq += '<i' + (i <= l.sq ? ' class="on"' : '') + '></i>';
+    var h = '<article class="task" id="aufgabe-' + t.id + '" data-id="' + t.id + '">';
+    if (r) h += '<span class="stamp ' + r + '">' + STAMP[r] + '</span>';
+    h += '<div class="task-head"><span class="num">' + (/^\d$/.test(t.no) ? '0' : '') + t.no + '</span><div><h3>' + esc(t.title) + '</h3>' +
+      '<div class="meta"><span class="lvl">' + (l.sq ? '<span class="sq" aria-hidden="true">' + sq + '</span>' : '') + (l.chip || l.name) + '</span>' +
+      t.topics.map(function (x) { return '<span class="tag">' + esc(x) + '</span>'; }).join('') + '</div></div></div>';
+    h += '<div class="prompt">' + t.task + '</div>';
+    h += '<div class="actions">' +
+      '<button type="button" class="btn" data-act="hint" aria-expanded="' + !!o.hint + '" aria-controls="h-' + t.id + '">Hinweis ' + CHEV + '</button>' +
+      '<button type="button" class="btn sol" data-act="sol" aria-expanded="' + !!o.sol + '" aria-controls="s-' + t.id + '">Lösung ' + CHEV + '</button>' +
+      (t.check.kind !== 'none' ? '<button type="button" class="btn try" data-act="bench" aria-expanded="' + !!o.bench + '" aria-controls="b-' + t.id + '">Eingeben &amp; prüfen ' + CHEV + '</button>' : '') + '</div>';
+    h += '<div class="hint" id="h-' + t.id + '"' + (o.hint ? '' : ' hidden') + '><span class="hand">Hinweis</span>' + t.hint + '</div>';
+    if (t.check.kind !== 'none') h += benchHTML(t, o.bench);
+    h += '<div class="solution" id="s-' + t.id + '"' + (o.sol ? '' : ' hidden') + '>' +
+      '<div><p class="sol-label">Musterlösung</p>' + (t.answer ? '<div class="answer">' + t.answer + '</div>' : '') + (t.solution ? '<pre class="code"><code>' + hl(t.solution) + '</code></pre>' : '') + '</div>' +
+      '<div class="explain"><p class="sol-label">So funktioniert es</p>' + t.explain + '</div>' +
+      (t.alt ? '<details class="alt"><summary>Alternative Lösung</summary><pre class="code"><code>' + hl(t.alt) + '</code></pre></details>' : '') +
+      '<div class="pitfall"><span class="hand">Typischer Fehler</span>' + t.pitfall + '</div>' +
+      '<div class="rate" role="group" aria-label="Selbsteinschätzung"><span class="rate-q">Wie lief es auf deinem Blatt?</span>' +
+      ['ok:Richtig', 'part:Teilweise', 'bad:Falsch'].map(function (x) { var p = x.split(':');
+        return '<button type="button" data-r="' + p[0] + '" aria-pressed="' + (r === p[0]) + '">' + p[1] + '</button>'; }).join('') +
+      '</div></div>';
+    return h + '</article>';
+  }
+
+  function renderTasks() {
+    var list = TASKS.filter(matches), h = '';
+    if (!list.length) {
+      h = '<div class="empty">Keine Aufgaben in dieser Auswahl. ' +
+        (state.status === 'wdh' ? 'Sobald du eine Aufgabe als „Teilweise“ oder „Falsch“ markierst, taucht sie hier auf.' :
+         state.status === 'ok' ? 'Markiere eine Aufgabe nach dem Vergleich mit der Lösung als „Richtig“, dann erscheint sie hier.' :
+         'Wähle einen anderen Filter.') + '</div>';
+    } else {
+      LEVELS.forEach(function (l) {
+        var part = list.filter(function (t) { return t.level === l.key; });
+        if (!part.length) return;
+        var ids = TASKS.filter(function (t) { return t.level === l.key; }).map(function (t) { return t.no; });
+        h += '<div class="group-head"><h2>' + l.name + '</h2><p>Aufgaben ' + ids[0] + '–' + ids[ids.length - 1] + ' · ' + l.sub + '</p></div>';
+        h += part.map(taskHTML).join('');
+      });
+    }
+    document.getElementById('tasks').innerHTML = h;
+    Array.prototype.forEach.call(document.querySelectorAll('.bench:not([hidden]) .sql-in'), grow);
+    renderProgress();
+  }
+
+
+  /* ---------- Eingabe, Bausteine, Prüfung ---------- */
+  var SNIPS = {
+    k: { name: 'Abfrage', items: [
+      { l: 'SELECT', t: 'SELECT ', b: 1 }, { l: 'FROM', t: 'FROM ', b: 1 }, { l: 'WHERE', t: 'WHERE ', b: 1 },
+      { l: 'JOIN … ON', t: 'JOIN | ON ', b: 1 }, { l: 'LEFT JOIN … ON', t: 'LEFT JOIN | ON ', b: 1 },
+      { l: 'GROUP BY', t: 'GROUP BY ', b: 1 }, { l: 'HAVING', t: 'HAVING ', b: 1 }, { l: 'ORDER BY', t: 'ORDER BY ', b: 1 },
+      { l: 'ASC', t: 'ASC' }, { l: 'DESC', t: 'DESC' }, { l: 'AS', t: 'AS ' }, { l: 'DISTINCT', t: 'DISTINCT ' },
+      { l: '*', t: '*', c: 'op' }, { l: ',', t: ', ', c: 'op', glue: 1 }, { l: '.', t: '.', c: 'op', glue: 1, tight: 1 },
+      { l: '( )', t: '(|)', c: 'op' }, { l: '(SELECT …)', t: '(\n    SELECT |\n)' }] },
+    w: { name: 'Bedingungen', items: [
+      { l: '=', t: '= ', c: 'op' }, { l: '<>', t: '<> ', c: 'op' }, { l: '<', t: '< ', c: 'op' }, { l: '>', t: '> ', c: 'op' },
+      { l: '<=', t: '<= ', c: 'op' }, { l: '>=', t: '>= ', c: 'op' }, { l: 'AND', t: 'AND ' }, { l: 'OR', t: 'OR ' }, { l: 'NOT', t: 'NOT ' },
+      { l: 'IS NULL', t: 'IS NULL' }, { l: 'IS NOT NULL', t: 'IS NOT NULL' }, { l: 'BETWEEN … AND', t: 'BETWEEN | AND ' },
+      { l: 'IN ( )', t: 'IN (|)' }, { l: 'NOT IN ( )', t: 'NOT IN (|)' }, { l: "LIKE '…%'", t: "LIKE '|%'" },
+      { l: 'EXISTS', t: 'EXISTS (\n    SELECT 1\n    FROM |\n    WHERE \n)' }, { l: 'NOT EXISTS', t: 'NOT EXISTS (\n    SELECT 1\n    FROM |\n    WHERE \n)' },
+      { l: "'Text'", t: "'|'", c: 'op' }, { l: "'JJJJ-MM-TT'", t: "'|2025-01-01'", c: 'op' }, { l: 'NULL', t: 'NULL' }, { l: 'CURRENT_DATE', t: 'CURRENT_DATE' }] },
+    f: { name: 'Funktionen', items: [
+      { l: 'COUNT(*)', t: 'COUNT(*)', c: 'fn' }, { l: 'COUNT( )', t: 'COUNT(|)', c: 'fn' }, { l: 'COUNT(DISTINCT )', t: 'COUNT(DISTINCT |)', c: 'fn' },
+      { l: 'SUM( )', t: 'SUM(|)', c: 'fn' }, { l: 'AVG( )', t: 'AVG(|)', c: 'fn' }, { l: 'MIN( )', t: 'MIN(|)', c: 'fn' }, { l: 'MAX( )', t: 'MAX(|)', c: 'fn' },
+      { l: 'ROUND( , 2)', t: 'ROUND(|, 2)', c: 'fn' }, { l: 'COALESCE( , 0)', t: 'COALESCE(|, 0)', c: 'fn' }] },
+    d: { name: 'Daten ändern', items: [
+      { l: 'INSERT … VALUES', t: 'INSERT INTO | ()\nVALUES ()', b: 1 }, { l: 'INSERT … SELECT', t: 'INSERT INTO | ()\nSELECT ', b: 1 },
+      { l: 'UPDATE … SET', t: 'UPDATE |\nSET \nWHERE ', b: 1 }, { l: 'DELETE FROM', t: 'DELETE FROM |\nWHERE ', b: 1 },
+      { l: 'START TRANSACTION', t: 'START TRANSACTION;\n', b: 1, glue: 1 }, { l: 'COMMIT', t: 'COMMIT;\n', b: 1, glue: 1 }, { l: 'ROLLBACK', t: 'ROLLBACK;\n', b: 1, glue: 1 },
+      { l: 'CREATE VIEW', t: 'CREATE VIEW | AS\nSELECT ', b: 1 }, { l: ';', t: ';\n', c: 'op', glue: 1 }] },
+    t: { name: 'Tabellenstruktur', items: [
+      { l: 'CREATE TABLE', t: 'CREATE TABLE | (\n    \n)', b: 1 }, { l: 'ALTER TABLE', t: 'ALTER TABLE ', b: 1 }, { l: 'ADD COLUMN', t: 'ADD COLUMN ' },
+      { l: 'DROP COLUMN', t: 'DROP COLUMN ' }, { l: 'ADD FOREIGN KEY', t: 'ADD FOREIGN KEY (|) REFERENCES ' }, { l: 'DROP TABLE', t: 'DROP TABLE ', b: 1 },
+      { l: 'PRIMARY KEY ( )', t: 'PRIMARY KEY (|)' }, { l: 'FOREIGN KEY … REFERENCES', t: 'FOREIGN KEY (|) REFERENCES ' },
+      { l: 'NOT NULL', t: 'NOT NULL' }, { l: 'UNIQUE', t: 'UNIQUE' }, { l: 'CHECK ( )', t: 'CHECK (|)' }, { l: 'DEFAULT', t: 'DEFAULT ' },
+      { l: 'INT', t: 'INT', c: 'fn' }, { l: 'VARCHAR( )', t: 'VARCHAR(|)', c: 'fn' }, { l: 'CHAR( )', t: 'CHAR(|)', c: 'fn' }, { l: 'DECIMAL( , 2)', t: 'DECIMAL(|, 2)', c: 'fn' },
+      { l: 'DATE', t: 'DATE', c: 'fn' }, { l: 'DATETIME', t: 'DATETIME', c: 'fn' }, { l: 'TIME', t: 'TIME', c: 'fn' }, { l: 'BOOLEAN', t: 'BOOLEAN', c: 'fn' },
+      { l: ',', t: ', ', c: 'op', glue: 1 }, { l: ';', t: ';\n', c: 'op', glue: 1 }] }
+  };
+  var TAB_ORDER = ['k', 'w', 'f', 'd', 't', 's'];
+  var TAB_NAME = { k: 'Abfrage', w: 'Bedingungen', f: 'Funktionen', d: 'Daten ändern', t: 'Tabellenstruktur', s: 'Tabellen & Spalten' };
+  var SCHEMA_BY = {}; DATA.schema.forEach(function (t) { SCHEMA_BY[t.name] = t; });
+
+  function paletteHTML(id) {
+    var kind = TBYID[id].check.kind, startTab = kind === 'ddl' ? 't' : (kind === 'dml' ? 'd' : 'k');
+    var ps = palState[id] || (palState[id] = { tab: startTab, tbl: 'Ausleihe' });
+    var h = '<div class="ptabs" role="tablist" aria-label="Bausteine">' + TAB_ORDER.map(function (k) {
+      return '<button type="button" class="ptab" role="tab" data-tab="' + k + '" aria-selected="' + (ps.tab === k) + '">' + TAB_NAME[k] + '</button>';
+    }).join('') + '</div>';
+    if (ps.tab === 's') {
+      h += '<div class="chips"><span class="chips-label">Tabelle einfügen</span>' + DATA.schema.map(function (t) {
+        return '<button type="button" class="chip tbl" data-tbl="' + t.name + '" aria-pressed="' + (ps.tbl === t.name) + '">' + t.name + '</button>';
+      }).join('') + '</div>';
+      h += '<div class="chips"><span class="chips-label">Spalten von ' + ps.tbl + '</span>' + SCHEMA_BY[ps.tbl].cols.map(function (c) {
+        return '<button type="button" class="chip colname' + (c[2] === 'pk' ? ' pk' : '') + '" data-col="' + c[0] + '">' + c[0] + '</button>';
+      }).join('') + '</div>';
+    } else {
+      h += '<div class="chips">' + SNIPS[ps.tab].items.map(function (sn, i) {
+        return '<button type="button" class="chip' + (sn.c ? ' ' + sn.c : '') + '" data-snip="' + ps.tab + ':' + i + '">' + esc(sn.l) + '</button>';
+      }).join('') + '</div>';
+    }
+    return h;
+  }
+
+  function benchHTML(t, isOpen) {
+    return '<div class="bench" id="b-' + t.id + '"' + (isOpen ? '' : ' hidden') + '>' +
+      '<p class="bench-intro">Tippe deine Lösung ein oder setze sie aus den Bausteinen zusammen. Semikolons, Groß- und Kleinschreibung und Aliasnamen sind egal, geprüft wird das Ergebnis.</p>' +
+      '<textarea class="sql-in" id="sql-' + t.id + '" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Deine SQL-Lösung zu Aufgabe ' + t.id + '" placeholder="SELECT …">' + esc(state.drafts[t.id] || '') + '</textarea>' +
+      '<div class="palette" data-pal="' + t.id + '">' + (isOpen ? paletteHTML(t.id) : '') + '</div>' +
+      '<div class="bench-actions"><button type="button" class="btn run" data-run="' + t.id + '">Prüfen</button>' +
+      '<button type="button" class="ghost" data-undo="' + t.id + '">Rückgängig</button>' +
+      '<button type="button" class="ghost" data-clear="' + t.id + '">Leeren</button><span class="kbd">Strg + Enter prüft</span></div>' +
+      '<div class="feedback" id="fb-' + t.id + '" aria-live="polite">' + (feedback[t.id] ? feedbackHTML(t, feedback[t.id]) : '') + '</div>' +
+      '</div>';
+  }
+
+  function fmt(v) {
+    if (v === null || v === undefined) return '<span class="null">NULL</span>';
+    if (typeof v === 'number' && !Number.isInteger(v)) v = Math.round(v * 10000) / 10000;
+    return esc(v);
+  }
+  function tableHTML(res, cap, max) {
+    if (!res) return '';
+    max = max || 25;
+    var h = '<div>' + (cap ? '<p class="rt-cap">' + cap + '</p>' : '');
+    if (!res.columns.length) return h + '<p class="fb-note">Keine Spalten.</p></div>';
+    h += '<div class="rt"><table><thead><tr>' + res.columns.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    if (!res.values.length) h += '<tr><td colspan="' + res.columns.length + '" class="null">keine Zeilen</td></tr>';
+    res.values.slice(0, max).forEach(function (r) { h += '<tr>' + r.map(function (v) { return '<td>' + fmt(v) + '</td>'; }).join('') + '</tr>'; });
+    h += '</tbody></table></div>';
+    if (res.values.length > max) h += '<p class="rt-more">… und ' + (res.values.length - max) + ' weitere Zeilen</p>';
+    return h + '</div>';
+  }
+
+  var MARK = { ok: '✓ richtig', part: 'fast', bad: 'noch nicht', error: 'Fehler in der Abfrage', empty: 'leer', wait: 'prüfe …' };
+  function feedbackHTML(t, fb) {
+    var h = '<div class="fb-head fb-' + fb.status + '"><span class="fb-mark">' + MARK[fb.status] + '</span></div>';
+    h += '<div class="fb-msgs">' + fb.msgs.map(function (m) { return '<p>' + esc(m) + '</p>'; }).join('') + '</div>';
+    (fb.warn || []).forEach(function (w) { h += '<div class="fb-warn"><strong>Prinzip:</strong> ' + esc(w) + '</div>'; });
+    (fb.notes || []).forEach(function (n) { h += '<p class="fb-note">' + esc(n) + '</p>'; });
+    if (fb.raw) h += '<p class="fb-raw">SQLite: ' + esc(fb.raw) + '</p>';
+    if (fb.status === 'ok' && state.ratings[t.id] !== 'ok') h += '<button type="button" class="ghost fb-mark-btn" data-markok="' + t.id + '">Als „sitzt“ markieren</button>';
+    if (fb.user) {
+      h += tableHTML(fb.user, fb.userLabel || 'Dein Ergebnis');
+      if (fb.expected && fb.status !== 'ok') h += '<details class="cmp"><summary>Erwartetes Ergebnis anzeigen</summary><div>' + tableHTML(fb.expected, '') + '</div></details>';
+    }
+    if (fb.userB) h += '<details class="cmp"><summary>Zweiter Testdatensatz: dein Ergebnis und erwartet</summary><div>' + tableHTML(fb.userB, 'Dein Ergebnis') + tableHTML(fb.expectedB, 'Erwartet') + '</div></details>';
+    if (fb.diffs) {
+      h += '<details class="cmp"' + (fb.status === 'bad' ? ' open' : '') + '><summary>Unterschiede in den Tabellen' + (fb.diffsLabel ? ' (' + fb.diffsLabel + ')' : '') + '</summary><div>';
+      fb.diffs.forEach(function (d) {
+        if (d.gone) { h += '<p>Die Tabelle ' + esc(d.table) + ' gibt es nach deiner Eingabe nicht mehr.</p>'; return; }
+        if (d.missing.length) h += tableHTML({ columns: d.columns, values: d.missing }, d.table + ': so erwartet, fehlt bei dir', 8);
+        if (d.extra.length) h += tableHTML({ columns: d.columns, values: d.extra }, d.table + ': bei dir zusätzlich oder anders', 8);
+      });
+      h += '</div></details>';
+    }
+    return h;
+  }
+
+  var sqlReady = null;
+  function loadSql() {
+    if (sqlReady) return sqlReady;
+    sqlReady = new Promise(function (resolve, reject) {
+      var urls = ["sql-asm.js", "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-asm.js", "https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-asm.js"];
+      (function attempt(i) {
+        if (window.initSqlJs) { window.initSqlJs().then(resolve, reject); return; }
+        if (i >= urls.length) { reject(new Error('Laden fehlgeschlagen')); return; }
+        var sc = document.createElement('script');
+        sc.src = urls[i];
+        sc.onload = function () { attempt(i + 1); };
+        sc.onerror = function () { sc.remove(); attempt(i + 1); };
+        document.head.appendChild(sc);
+      })(0);
+    });
+    sqlReady.catch(function () { sqlReady = null; });
+    return sqlReady;
+  }
+
+  function setFeedback(id, fb) {
+    feedback[id] = fb;
+    var el = document.getElementById('fb-' + id);
+    if (el) el.innerHTML = fb ? feedbackHTML(TBYID[id], fb) : '';
+  }
+
+  function runCheck(id) {
+    var ta = document.getElementById('sql-' + id), btn = document.querySelector('[data-run="' + id + '"]');
+    if (!ta) return;
+    var sql = ta.value;
+    setFeedback(id, { status: 'wait', msgs: ['Die Prüfumgebung lädt beim ersten Mal ein paar Sekunden.'] });
+    if (btn) btn.disabled = true;
+    loadSql().then(function (SQL) {
+      setTimeout(function () {
+        var fb;
+        try { fb = SqlCheck.check(SQL, TBYID[id], sql, DATA.seeds); }
+        catch (e) { fb = { status: 'error', msgs: ['Die Prüfung ist unerwartet abgebrochen. Vereinfache die Eingabe und versuch es noch einmal.'], raw: String(e && e.message || e) }; }
+        setFeedback(id, fb);
+        if (btn) btn.disabled = false;
+      }, 20);
+    }, function () {
+      setFeedback(id, { status: 'error', msgs: ['Die Prüfumgebung (SQLite) konnte nicht geladen werden. Prüfe die Internetverbindung und versuch es noch einmal.'] });
+      if (btn) btn.disabled = false;
+    });
+  }
+
+  function saveDraft(id, val) { if (val) state.drafts[id] = val; else delete state.drafts[id]; save(); }
+  function pushHistory(id, val) {
+    var hs = history[id] || (history[id] = []);
+    if (hs[hs.length - 1] !== val) hs.push(val);
+    if (hs.length > 60) hs.shift();
+  }
+  function grow(ta) { ta.style.height = 'auto'; ta.style.height = Math.max(150, ta.scrollHeight + 4) + 'px'; }
+
+  function insertAt(id, sn) {
+    var ta = document.getElementById('sql-' + id);
+    if (!ta) return;
+    var v = ta.value, sel = ta._sel || [v.length, v.length];
+    if (document.activeElement === ta) sel = [ta.selectionStart, ta.selectionEnd];
+    var before = v.slice(0, sel[0]), after = v.slice(sel[1]), text = sn.t, prefix = '', suffix = '';
+    var lineSoFar = before.slice(before.lastIndexOf('\n') + 1);
+    if (sn.b && lineSoFar.trim() !== '') prefix = '\n';
+    else if (sn.tight) prefix = '';
+    else if (before && !/[\s(.]$/.test(before) && !sn.glue) prefix = ' ';
+    else if (sn.glue && /\s$/.test(before) && text[0] === ',') { before = before.replace(/\s+$/, ''); }
+    if (/^[\s,)]/.test(after) === false && after && !/[\s(]$/.test(text) && text.indexOf('|') < 0 && !sn.tight) suffix = ' ';
+    var caret = text.indexOf('|');
+    text = text.replace('|', '');
+    pushHistory(id, v);
+    ta.value = before + prefix + text + suffix + after;
+    var pos = before.length + prefix.length + (caret >= 0 ? caret : text.length + suffix.length);
+    ta.setSelectionRange(pos, pos);
+    ta._sel = [pos, pos];
+    saveDraft(id, ta.value);
+    grow(ta);
+  }
+
+  var tasksEl = document.getElementById('tasks');
+  ['mousedown', 'pointerdown'].forEach(function (ev) {
+    tasksEl.addEventListener(ev, function (e) { if (e.target.closest('.chip, .ptab')) e.preventDefault(); });
+  });
+  var histTimer = null;
+  tasksEl.addEventListener('input', function (e) {
+    var ta = e.target.closest('.sql-in'); if (!ta) return;
+    var id = +ta.id.slice(4);
+    ta._sel = [ta.selectionStart, ta.selectionEnd];
+    saveDraft(id, ta.value); grow(ta);
+    clearTimeout(histTimer); histTimer = setTimeout(function () { pushHistory(id, ta.value); }, 700);
+  });
+  ['keyup', 'click', 'select', 'blur'].forEach(function (ev) {
+    tasksEl.addEventListener(ev, function (e) {
+      var ta = e.target && e.target.closest && e.target.closest('.sql-in');
+      if (ta) ta._sel = [ta.selectionStart, ta.selectionEnd];
+    }, true);
+  });
+  tasksEl.addEventListener('keydown', function (e) {
+    var ta = e.target.closest('.sql-in'); if (!ta) return;
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); runCheck(+ta.id.slice(4)); }
+  });
+
+  function benchClick(e, id) {
+    var x;
+    if ((x = e.target.closest('[data-tab]'))) { palState[id].tab = x.dataset.tab; document.querySelector('[data-pal="' + id + '"]').innerHTML = paletteHTML(id); return true; }
+    if ((x = e.target.closest('[data-snip]'))) { var p = x.dataset.snip.split(':'); insertAt(id, SNIPS[p[0]].items[+p[1]]); return true; }
+    if ((x = e.target.closest('[data-tbl]'))) { palState[id].tbl = x.dataset.tbl; insertAt(id, { t: x.dataset.tbl }); document.querySelector('[data-pal="' + id + '"]').innerHTML = paletteHTML(id); return true; }
+    if ((x = e.target.closest('[data-col]'))) { insertAt(id, { t: x.dataset.col }); return true; }
+    if ((x = e.target.closest('[data-run]'))) { runCheck(id); return true; }
+    if ((x = e.target.closest('[data-undo]'))) {
+      var ta = document.getElementById('sql-' + id), hs = history[id] || [];
+      clearTimeout(histTimer);
+      while (hs.length && hs[hs.length - 1] === ta.value) hs.pop();
+      if (hs.length) { ta.value = hs.pop(); saveDraft(id, ta.value); grow(ta); ta._sel = [ta.value.length, ta.value.length]; }
+      return true;
+    }
+    if ((x = e.target.closest('[data-clear]'))) {
+      var tb = document.getElementById('sql-' + id);
+      if (tb.value) pushHistory(id, tb.value);
+      tb.value = ''; tb._sel = [0, 0]; saveDraft(id, ''); grow(tb); setFeedback(id, null);
+      return true;
+    }
+    if ((x = e.target.closest('[data-markok]'))) {
+      state.ratings[id] = 'ok'; save();
+      var card = document.getElementById('aufgabe-' + id);
+      if (!matches(TBYID[id])) { renderTasks(); return true; }
+      card.outerHTML = taskHTML(TBYID[id]);
+      var ta2 = document.getElementById('sql-' + id); if (ta2) grow(ta2);
+      renderProgress();
+      return true;
+    }
+    return false;
+  }
+
+  function renderProgress() {
+    var c = counts(), done = c.ok + c.part + c.bad, n = TASKS.length;
+    document.getElementById('pcount').innerHTML = done + ' <span>von ' + n + ' bearbeitet</span>';
+    document.getElementById('plegend').innerHTML =
+      '<span><i class="c-ok"></i>' + c.ok + ' sitzen</span><span><i class="c-part"></i>' + c.part + ' teilweise</span><span><i class="c-bad"></i>' + c.bad + ' wiederholen</span>';
+    var bars = document.getElementById('pbar').children;
+    bars[0].style.width = (100 * c.ok / n) + '%'; bars[1].style.width = (100 * c.part / n) + '%'; bars[2].style.width = (100 * c.bad / n) + '%';
+  }
+
+  document.getElementById('tasks').addEventListener('click', function (e) {
+    var card = e.target.closest('.task'); if (!card) return;
+    var id = +card.dataset.id;
+    if (benchClick(e, id)) return;
+    var b = e.target.closest('button[data-act]');
+    if (b) {
+      var act = b.dataset.act; open[id] = open[id] || {};
+      open[id][act] = !open[id][act];
+      b.setAttribute('aria-expanded', open[id][act]);
+      document.getElementById({ hint: 'h-', sol: 's-', bench: 'b-' }[act] + id).hidden = !open[id][act];
+      if (act === 'bench' && open[id].bench) {
+        var pal = document.querySelector('[data-pal="' + id + '"]');
+        if (!pal.innerHTML) pal.innerHTML = paletteHTML(id);
+        grow(document.getElementById('sql-' + id));
+        loadSql();
+      }
+      return;
+    }
+    var r = e.target.closest('button[data-r]');
+    if (r) {
+      var val = r.dataset.r;
+      if (state.ratings[id] === val) delete state.ratings[id]; else state.ratings[id] = val;
+      save();
+      if (!matches(TASKS.filter(function (t) { return t.id === id; })[0])) { renderTasks(); return; }
+      card.outerHTML = taskHTML(TASKS.filter(function (t) { return t.id === id; })[0]);
+      var ta3 = document.getElementById('sql-' + id); if (ta3 && open[id] && open[id].bench) grow(ta3);
+      var fresh = document.querySelector('#aufgabe-' + id + ' button[data-r="' + val + '"]');
+      if (fresh) fresh.focus();
+      renderProgress();
+    }
+  });
+
+  var armTimer = null, resetBtn = document.getElementById('reset');
+  resetBtn.addEventListener('click', function () {
+    if (!resetBtn.classList.contains('armed')) {
+      resetBtn.classList.add('armed'); resetBtn.textContent = 'Wirklich alle Bewertungen löschen? Nochmal tippen';
+      clearTimeout(armTimer); armTimer = setTimeout(function () { resetBtn.classList.remove('armed'); resetBtn.textContent = 'Fortschritt zurücksetzen'; }, 4000);
+      return;
+    }
+    clearTimeout(armTimer); state.ratings = {}; save();
+    resetBtn.classList.remove('armed'); resetBtn.textContent = 'Fortschritt zurückgesetzt';
+    setTimeout(function () { resetBtn.textContent = 'Fortschritt zurücksetzen'; }, 2000);
+    renderTasks();
+  });
+
+  var openBtn = document.getElementById('open-schema'), closeBtn = document.getElementById('close-schema');
+  openBtn.addEventListener('click', function () { document.body.classList.add('schema-open'); closeBtn.focus(); });
+  closeBtn.addEventListener('click', function () { document.body.classList.remove('schema-open'); openBtn.focus(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.body.classList.contains('schema-open')) closeBtn.click(); });
+
+  renderFilters();
+  renderTasks();
+})();
+</script>
+
+</body>
+</html>
